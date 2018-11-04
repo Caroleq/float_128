@@ -7,9 +7,9 @@ Formula to compute decimal number:
 x  = (-1)^s 2^{E-bias}(1+M)
 
 Where:
-s - sign
-E - exponent
-M - mantissa
-bias = 4095
+ - s - sign
+ - E - exponent
+ - M - mantissa
+ - bias = 4095
 
 
