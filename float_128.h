@@ -204,6 +204,23 @@ public:
         
     }
     
+    int get_exponent()
+    {
+            int exponent = 0;
+            
+            for( int i=126; i>113; i--){
+                
+             //   std::cout << "bit: " << i << "  value: " <<  (  ( bits[0] >> (i-64) ) & 1 ) << std::endl;
+                    
+                exponent = exponent*2 + (  ( bits[0] >> (i-64) ) & 1 ); 
+                
+            }
+            
+            return exponent - 4096;
+        
+        
+    }
+    
     
     const std::string binary_representation(){
         
@@ -218,10 +235,128 @@ public:
      return binary;
     }
     
-    float_128 operator+ ( const float_128 & float_to_add ){
+    
+    void only_mantissa_bits( uint64_t mantissa [] )
+    {
+     
+        mantissa[0] = mantissa[1] = 0;
+        
+        for( int i=0; i<64; i++){
+                if( get_bit(i) )
+                    mantissa[0] = mantissa[0] | ( 1ULL << i );
+        }
+        
+        for( int i=64; i<114; i++){
+                if( get_bit(i) )
+                    mantissa[1] = mantissa[1] | ( 1ULL << (i-64) );
+                
+        }
+        
+    }
+    
+    
+    
+    void add_two_uint64( uint64_t mantissa1 [], uint64_t mantissa2 [], uint64_t result [], int & is_one )
+    {
+        
+        uint8_t accumulator = 0;
+        
+        result[0] = result[1] = 0;
+        
+        for( int i=0; i<64; i++){
+         
+            bool bit1 = ( mantissa1[1] >> i ) & 1; 
+            bool bit2 = ( mantissa2[1] >> i ) & 1; 
+            
+         //   std::cout << "bit1=" << bit1 << " bit2="<< bit2 <<std::endl;
+            
+            accumulator += bit1 + bit2;
+            
+            if( (accumulator%2) == 1 )
+                result[1] = result[1] | ( 1ULL << i );
+            
+            if( accumulator > 1)
+                accumulator -= 2;
+        }
         
         
-        return float_128();
+        
+        for( int i=64; i< 113; i++){
+         
+            bool bit1 = ( mantissa1[0] >> (i-64) ) & 1; 
+            bool bit2 = ( mantissa2[0] >> (i-64) ) & 1; 
+            
+            accumulator += bit1 + bit2;
+            
+
+            if( (accumulator%2) == 1 )
+                result[0] = result[0] | ( 1ULL << (i-64) );
+            
+            if( accumulator > 1)
+                accumulator -= 2;
+        }
+        
+
+        
+        if( accumulator ){
+            is_one = 1;
+        }
+        else
+            is_one = 0;
+        
+    }
+    
+    float_128 operator+ ( float_128 & float_to_add ){
+        
+
+        
+        int exp1 = get_exponent();
+        int exp2 = float_to_add.get_exponent();
+        
+        
+        uint64_t mantissa1[2];
+        uint64_t mantissa2[2];
+        
+        
+        mantissa1[0] = bits[0]; mantissa1[1] = bits[1];
+        mantissa2[0] = float_to_add.bits[0]; mantissa2[1] = float_to_add.bits[1];
+        
+        if( exp1 > exp2 ){
+            mantissa2[0] = mantissa2[0] >> (exp1-exp2);
+            mantissa2[1] = mantissa2[1] >> (exp1-exp2);
+            mantissa2[0] = mantissa2[0] | ( 1ULL << (64-(exp1-exp2)-15) ); 
+        }
+        else if( exp1 < exp2 ){
+            mantissa1[0] = mantissa1[0] >> (exp2-exp1);
+            mantissa1[1] = mantissa1[1] >> (exp2-exp1);
+        }
+        
+        
+        
+        uint64_t mantissa3[2];
+        int is_one;
+        
+        add_two_uint64( mantissa1, mantissa2, mantissa3, is_one );
+        
+        int exp = exp1 > exp2? exp1 : exp2;
+        
+        
+        
+        if( is_one )
+            exp++;
+        
+
+        float_128 result;
+        
+        result.bits[0] = mantissa3[0];
+        result.bits[1] = mantissa3[1];
+        
+        result.set_exponent(exp+4095);
+        
+        if( get_bit(127) )
+            result.set_bit(127);
+        
+        return result;
         
     }
 };
