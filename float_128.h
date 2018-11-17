@@ -2,6 +2,9 @@
 #define FLOAT_128_H
 
 #include <stdlib.h>
+#include <string>
+#include <cstdint>
+#include <iostream>
 // x = (-1)^s*2^(bias-E)*(1+M)
 
 
@@ -196,11 +199,11 @@ public:
         
         if( index > 63 ){
             index -= 64;
-            bits[0] = bits[0] & ( ~( 1 << index ) );
+            bits[0] = bits[0] & ( ~( 1ULL << index ) );
             return;
         }
         
-        bits[1] = bits[1] & ( ~( 1 << index ) );   
+        bits[1] = bits[1] & ( ~( 1ULL << index ) );   
         
     }
     
@@ -209,9 +212,6 @@ public:
             int exponent = 0;
             
             for( int i=126; i>113; i--){
-                
-             //   std::cout << "bit: " << i << "  value: " <<  (  ( bits[0] >> (i-64) ) & 1 ) << std::endl;
-                    
                 exponent = exponent*2 + (  ( bits[0] >> (i-64) ) & 1 ); 
                 
             }
@@ -268,7 +268,6 @@ public:
             bool bit1 = ( mantissa1[1] >> i ) & 1; 
             bool bit2 = ( mantissa2[1] >> i ) & 1; 
             
-         //   std::cout << "bit1=" << bit1 << " bit2="<< bit2 <<std::endl;
             
             accumulator += bit1 + bit2;
             
@@ -281,16 +280,16 @@ public:
         
         
         
-        for( int i=64; i< 113; i++){
+        for( int i=0; i< 64; i++){
          
-            bool bit1 = ( mantissa1[0] >> (i-64) ) & 1; 
-            bool bit2 = ( mantissa2[0] >> (i-64) ) & 1; 
+            bool bit1 = ( mantissa1[0] >> i ) & 1; 
+            bool bit2 = ( mantissa2[0] >> i ) & 1; 
             
             accumulator += bit1 + bit2;
             
 
             if( (accumulator%2) == 1 )
-                result[0] = result[0] | ( 1ULL << (i-64) );
+                result[0] = result[0] | ( 1ULL << i );
             
             if( accumulator > 1)
                 accumulator -= 2;
@@ -306,59 +305,25 @@ public:
         
     }
     
+    bool is_negative(){
+        return ( bits[0] >> 63 ) & 1;
+    }
+    
     float_128 operator+ ( float_128 & float_to_add ){
-        
-
-        
-        int exp1 = get_exponent();
-        int exp2 = float_to_add.get_exponent();
-        
-        
-        uint64_t mantissa1[2];
-        uint64_t mantissa2[2];
-        
-        
-        mantissa1[0] = bits[0]; mantissa1[1] = bits[1];
-        mantissa2[0] = float_to_add.bits[0]; mantissa2[1] = float_to_add.bits[1];
-        
-        if( exp1 > exp2 ){
-            mantissa2[0] = mantissa2[0] >> (exp1-exp2);
-            mantissa2[1] = mantissa2[1] >> (exp1-exp2);
-            mantissa2[0] = mantissa2[0] | ( 1ULL << (64-(exp1-exp2)-15) ); 
-        }
-        else if( exp1 < exp2 ){
-            mantissa1[0] = mantissa1[0] >> (exp2-exp1);
-            mantissa1[1] = mantissa1[1] >> (exp2-exp1);
+      
+        if( is_negative() && float_to_add.is_negative() ||  !is_negative() && !float_to_add.is_negative() ){
+            float_128 result = add_absolute_values(float_to_add);
+            return result;
         }
         
-        
-        
-        uint64_t mantissa3[2];
-        int is_one;
-        
-        add_two_uint64( mantissa1, mantissa2, mantissa3, is_one );
-        
-        int exp = exp1 > exp2? exp1 : exp2;
-        
-        
-        
-        if( is_one )
-            exp++;
-        
-
         float_128 result;
-        
-        result.bits[0] = mantissa3[0];
-        result.bits[1] = mantissa3[1];
-        
-        result.set_exponent(exp+4095);
-        
-        if( get_bit(127) )
-            result.set_bit(127);
         
         return result;
         
     }
+    
+    float_128 add_absolute_values( float_128 & float_to_add );
+    void shift_bits_in_array( uint64_t array [], int shift );
 };
 
 #endif
