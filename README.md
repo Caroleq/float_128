@@ -4,7 +4,7 @@ Following implementation of a number consists of:
 - 114-bit mantissa 
 
 Formula to compute decimal number:
-![Alt text](formula.jpg?raw=true )
+![Alt text](formula.png?raw=true )
 
 Where:
  - s - sign
