@@ -156,3 +156,48 @@ void display_array( uint64_t array[] )
 }
 
 
+bool float_128::leq_abs( float_128 & float_to_compare ){
+  
+    int exp1 = get_exponent();
+    int exp2 = float_to_compare.get_exponent();
+    
+    if( exp1 < exp2 )
+        return 1;
+    if( exp1 > exp2)
+        return 0;
+    
+    uint64_t mantissa1 = ( bits[0] >> 14 ) << 14;
+    uint64_t mantissa2 = ( float_to_compare.bits[0] >> 14 ) << 14;
+    
+    if( mantissa1 < mantissa2 )
+        return 1;
+    
+    if( mantissa1 > mantissa2 )
+        return 0;
+    
+    if( bits[1] < float_to_compare.bits[1] )
+        return 1;
+    
+    if( bits[1] > float_to_compare.bits[1] )
+        return 0;
+    return 1;
+    
+}
+
+
+bool float_128::geq_abs( float_128 & float_to_compare ){
+    
+    return (!leq_abs(float_to_compare) || eq_abs(float_to_compare) );
+}
+
+bool float_128::eq_abs( float_128 & float_to_compare )
+{
+    if( bits[1] != float_to_compare.bits[1] )
+        return 0;
+    
+    uint64_t first1 = bits[0] | ( 1ULL >> 63 );
+    uint64_t first2 = float_to_compare.bits[0] | ( 1ULL >> 63 );
+    
+    return (first1 == first2);
+}
+

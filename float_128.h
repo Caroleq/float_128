@@ -12,13 +12,16 @@
 class float_128
 {
     
-  long long lower_bits;
-  long long higher_bits;   // TODO - reimplement to 2-elements array
+  //long long lower_bits;
+ // long long higher_bits;   // TODO - reimplement to 2-elements array
   
   uint64_t bits[2];
   
 public:
-    float_128():lower_bits(0), higher_bits(0){}
+    float_128(){
+        bits[0] = 0;
+        bits[1] = 0;
+    }
     float_128( int number ){
         
         bits[0] = bits[1] = 0;
@@ -236,74 +239,7 @@ public:
     }
     
     
-    void only_mantissa_bits( uint64_t mantissa [] )
-    {
-     
-        mantissa[0] = mantissa[1] = 0;
-        
-        for( int i=0; i<64; i++){
-                if( get_bit(i) )
-                    mantissa[0] = mantissa[0] | ( 1ULL << i );
-        }
-        
-        for( int i=64; i<114; i++){
-                if( get_bit(i) )
-                    mantissa[1] = mantissa[1] | ( 1ULL << (i-64) );
-                
-        }
-        
-    }
-    
-    
-    
-    void add_two_uint64( uint64_t mantissa1 [], uint64_t mantissa2 [], uint64_t result [], int & is_one )
-    {
-        
-        uint8_t accumulator = 0;
-        
-        result[0] = result[1] = 0;
-        
-        for( int i=0; i<64; i++){
-         
-            bool bit1 = ( mantissa1[1] >> i ) & 1; 
-            bool bit2 = ( mantissa2[1] >> i ) & 1; 
-            
-            
-            accumulator += bit1 + bit2;
-            
-            if( (accumulator%2) == 1 )
-                result[1] = result[1] | ( 1ULL << i );
-            
-            if( accumulator > 1)
-                accumulator -= 2;
-        }
-        
-        
-        
-        for( int i=0; i< 64; i++){
-         
-            bool bit1 = ( mantissa1[0] >> i ) & 1; 
-            bool bit2 = ( mantissa2[0] >> i ) & 1; 
-            
-            accumulator += bit1 + bit2;
-            
 
-            if( (accumulator%2) == 1 )
-                result[0] = result[0] | ( 1ULL << i );
-            
-            if( accumulator > 1)
-                accumulator -= 2;
-        }
-        
-
-        
-        if( accumulator ){
-            is_one = 1;
-        }
-        else
-            is_one = 0;
-        
-    }
     
     bool is_negative(){
         return ( bits[0] >> 63 ) & 1;
@@ -322,8 +258,43 @@ public:
         
     }
     
-    float_128 add_absolute_values( float_128 & float_to_add );
+    float_128 add_absolute_values( float_128 & float_to_add);
     void shift_bits_in_array( uint64_t array [], int shift );
+    bool leq_abs(  float_128 & float_to_compare );
+    bool geq_abs( float_128 & float_to_compare );
+    bool eq_abs(  float_128 & float_to_compare );
+    
+    bool operator<= ( float_128 & float_to_compare){
+        
+        if( is_negative() && !float_to_compare.is_negative() ){
+                return 1;
+        }
+        if( !is_negative() && float_to_compare.is_negative() ){
+                return 0;
+        }
+        
+        int sign = ( bits[0] >> 63 ) & 1;
+        
+        switch( sign ){
+            
+            case 0:
+                return leq_abs( float_to_compare  );
+                break;
+            case 1:
+                return geq_abs( float_to_compare );
+        }
+        
+        return 0;
+    }
+    
+    bool operator== (  float_128 & float_to_compare){
+      return ( float_to_compare.bits[0] == bits[0] || float_to_compare.bits[1] == bits[1] );   
+    }
+    
+    bool operator>=( float_128 & float_to_compare ){
+        
+        return ( !(*this<=float_to_compare) || *this==float_to_compare );
+    }
 };
 
 #endif
