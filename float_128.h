@@ -248,17 +248,20 @@ public:
     float_128 operator+ ( float_128 & float_to_add ){
       
         if( is_negative() && float_to_add.is_negative() ||  !is_negative() && !float_to_add.is_negative() ){
-            float_128 result = add_absolute_values(float_to_add);
-            return result;
+           // float_128 result = add_absolute_values(float_to_add);
+            return add_absolute_values(float_to_add);
         }
         
-        float_128 result;
+      //  float_128 result;
         
-        return result;
+        
+      //  if( leq_abs( float_to_add) )
+        return add_opposite_signs( float_to_add );
         
     }
     
     float_128 add_absolute_values( float_128 & float_to_add);
+    float_128 add_opposite_signs( float_128 & float_to_add );
     void shift_bits_in_array( uint64_t array [], int shift );
     bool leq_abs(  float_128 & float_to_compare );
     bool geq_abs( float_128 & float_to_compare );

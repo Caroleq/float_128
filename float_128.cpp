@@ -201,3 +201,113 @@ bool float_128::eq_abs( float_128 & float_to_compare )
     return (first1 == first2);
 }
 
+
+float_128  float_128::add_opposite_signs( float_128 & float_to_add )
+{
+    
+    int exp1 = get_exponent();
+    int exp2 = float_to_add.get_exponent();
+    
+    uint64_t mantissa1[2];
+    uint64_t mantissa2[2];
+    uint64_t result[2];
+    
+    mantissa1[0] = bits[0]; 
+    mantissa1[1] = bits[1];
+    
+    mantissa2[0] = float_to_add.bits[0]; 
+    mantissa2[1] = float_to_add.bits[1];
+    
+    mantissa1[0] = ( mantissa1[0] << 14 ) >> 14;
+    mantissa2[0] = ( mantissa2[0] << 14 ) >> 14;
+    
+    if( leq_abs(float_to_add ) ){
+        // substract mantissa of *this from mantissa of float_to_add
+        
+        if( exp1 < exp2 ){
+            
+            shift_bits_in_array(mantissa1, exp2-exp1);
+        }
+        
+           int accumulator = 0;
+
+  /*  std::cout << "matisissa1: " << std::endl;
+    display_array(mantissa1);
+    std::cout << "matisissa2: " << std::endl;
+    display_array(mantissa2);    */
+    
+        result[0] = 0;
+        result[1] = 0;
+        
+
+    
+            for( int i=0; i<64; i++){
+            
+                bool bit1 = ( mantissa1[1] >> i ) & 1; 
+                bool bit2 = ( mantissa2[1] >> i ) & 1; 
+                
+                accumulator = bit2 - bit1;
+                
+                if( accumulator < 0 ){
+                        
+                    accumulator += 2;
+                    int j = i+1;
+                    while( 1 ){
+                    
+                        if( j < 64 ){
+                            if ( ( ( mantissa2[1] >> j ) & 1 ) == 1 ){
+                                
+                                mantissa2[1] = mantissa2[1] &  ( ~(1 << j ) );
+                                
+                                break;
+                            }
+                            else{
+                                
+                                mantissa2[1] = mantissa2[1] | (1 << j );
+                            }
+                            
+                        }
+                        else{
+                            
+                            if ( ( ( mantissa2[0] >> j ) & 1 ) == 1 ){
+                                
+                                mantissa2[0] = mantissa2[0] &  ( ~(1 << j ) );
+                                
+                                break;
+                            }
+                            else{
+                                
+                                mantissa2[0] = mantissa2[0] | (1 << j );
+                            }
+                            
+                        }
+                        
+                        j++;
+                    }
+                    
+                }
+                
+                if( accumulator )
+                    result[1] = result[1] | ( 1ULL << i );
+            }
+            
+            
+        result[0] = mantissa2[0] - mantissa1[0];
+            
+        
+        float_128 resultt;
+        // TOD0: shift result to 1 + M, decreasing exp2
+        
+        
+        resultt.bits[0] = result[0];
+        resultt.bits[1] = result[1];
+    
+        resultt.set_exponent(exp2+4096);
+        if( float_to_add.is_negative )
+            resultt.bits[0] = resultt.bits[0] | (1 << 63 );
+        
+    
+        return resultt;
+        
+    }
+}
