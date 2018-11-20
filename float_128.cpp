@@ -1,7 +1,7 @@
 #include "float_128.h"
 
 void display_array( uint64_t array[] );
-
+void shift_bits_in_array_left( uint64_t array[] , int positions );
 
 float_128 float_128::add_absolute_values( float_128 & float_to_add )
 {
@@ -277,7 +277,7 @@ float_128  float_128::add_opposite_signs( float_128 & float_to_add )
                             }
                             else{
                                 
-                                mantissa2[0] = mantissa2[0] | (1 << j );
+                                mantissa2[0] = mantissa2[0] | (1ULL << j );
                             }
                             
                         }
@@ -293,6 +293,23 @@ float_128  float_128::add_opposite_signs( float_128 & float_to_add )
             
             
         result[0] = mantissa2[0] - mantissa1[0];
+        
+        int places_to_shift = 1;
+        while( places_to_shift < 50+64 ){
+            
+            if( places_to_shift < 51 )
+                if( (result[0] >> ( 50 - places_to_shift) ) & 1 ){
+                    break;
+                }
+            else
+                if( result[1] >> (50 + 64 - places_to_shift) & 1 )
+                    break;
+                
+            places_to_shift++;
+            
+        }
+        
+        shift_bits_in_array_left(result, places_to_shift );
             
         
         float_128 resultt;
@@ -302,12 +319,40 @@ float_128  float_128::add_opposite_signs( float_128 & float_to_add )
         resultt.bits[0] = result[0];
         resultt.bits[1] = result[1];
     
-        resultt.set_exponent(exp2+4096);
-        if( float_to_add.is_negative )
-            resultt.bits[0] = resultt.bits[0] | (1 << 63 );
+        resultt.set_exponent(exp2+4096 - places_to_shift);
+        if( float_to_add.is_negative() )
+            resultt.bits[0] = resultt.bits[0] | (1ULL << 63 );
         
     
         return resultt;
         
+    }
+    
+    float_128 resultt;
+    return resultt;
+}
+
+
+void shift_bits_in_array_left( uint64_t array[] , int positions )
+{
+    
+    
+    
+    if( positions < 64 ){
+            
+        uint64_t higher = ( array[1] << positions ) | (array[0] >>(64-positions));
+        uint64_t lower = array[1] << positions;
+        
+        array[0] = higher;
+        array[1] = lower;
+    }
+    else if( positions == 64 ){
+            array[0] = array[1];
+            array[1] = 0;
+    }
+    else{
+        // to check
+        array[0] = array[1] << (128-positions);
+        array[1] = 0;
     }
 }
