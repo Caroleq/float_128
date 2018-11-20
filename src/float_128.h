@@ -262,7 +262,7 @@ public:
     
     float_128 add_absolute_values( float_128 & float_to_add);
     float_128 add_opposite_signs( float_128 & float_to_add );
-    void shift_bits_in_array( uint64_t array [], int shift );
+   // void shift_bits_in_array( uint64_t array [], int shift );
     bool leq_abs(  float_128 & float_to_compare );
     bool geq_abs( float_128 & float_to_compare );
     bool eq_abs(  float_128 & float_to_compare );
