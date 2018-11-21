@@ -65,7 +65,7 @@ public:
         double result = 1;
         
         while( power > 0 ){
-            result /= (double)2.0;
+            result /= 2.0;
             power--;
         }
 
@@ -78,7 +78,7 @@ public:
        uint8_t *ptr_to_int = (uint8_t *)&number;
        int  sum = 0;
 
-       for( int byte = sizeof(int)-1; byte > -1; byte--)
+      /* for( int byte = sizeof(int)-1; byte > -1; byte--)
         {
             int value = ptr_to_int[byte];
             int bit;
@@ -91,9 +91,17 @@ public:
                 sum = ( sum * 2 ) + ( (value>>(7-bit) ) & 1);
                 
             }
-        }
+        }*/
+      
+      int exp = 0;
+      while(  ( number / (double)(1ULL<<(exp+1)) ) > 1){
+          
+        exp++;
+      }
+      
+      std::cout << "exp: " << exp <<  " for " << number << std::endl;
         
-        return sum;
+        return exp;
         
     }
     

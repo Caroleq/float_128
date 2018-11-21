@@ -17,9 +17,20 @@ int main()
     
     float_128 float5 = float0 + float1;
     
-    std::cout << float4.binary_representation()  << std::endl;
+   // std::cout << float4.binary_representation()  << std::endl;
     
-    std::cout << float5.binary_representation()  << std::endl;
+  //  std::cout << float5.binary_representation()  << std::endl;
+    
+    float_128 float6(6);
+    float_128 float7(-3);
+    
+    float_128 float8 = float7 + float6;
+    
+    std::cout << float6.binary_representation() << std::endl;
+  //  std::cout << float7.binary_representation() << std::endl;
+  std::cout << float8.binary_representation()  << std::endl;
+    
+  ///  floa8 = float4
     
   return 0;   
 }

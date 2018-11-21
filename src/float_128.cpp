@@ -3,6 +3,8 @@
 extern void display_array( uint64_t array[] );
 extern void shift_bits_in_array_left( uint64_t array[] , int positions );
 extern void shift_bits_in_array_right( uint64_t array [], int shift );
+extern void set_array( uint64_t bits1[], int arr1[], bool set_1, uint64_t bits2[], int arr2[], bool set_2);
+extern int convert_to_mantissa( uint64_t mantissa[], int arr[] );
 
 float_128 float_128::add_absolute_values( float_128 & float_to_add )
 {
@@ -34,16 +36,21 @@ float_128 float_128::add_absolute_values( float_128 & float_to_add )
         exp = exp1;
         one2 = 0;
         shift_bits_in_array_right(mantissa2, exp1-exp2);
+        mantissa2[0] = mantissa2[0] | ( 1ULL << (50+exp2-exp1) );
     }
     else if( exp1 < exp2 ){
         exp = exp2;
         one1 = 0;
         shift_bits_in_array_right(mantissa1, exp2-exp1);
+        mantissa1[0] = mantissa1[0] | ( 1ULL << (50-exp2+exp1) );
     }
     else{
         exp = exp1 + 1;
         shift_bits_in_array_right(mantissa1, 1);
         shift_bits_in_array_right(mantissa2, 1);
+        
+        mantissa1[0] = mantissa1[0] | ( 1ULL << 49 );
+        mantissa2[0] = mantissa2[0] | ( 1ULL << 49 );
         
         mantissa1[0] &= ~(1ULL << 50 );
         mantissa2[0] &= ~(1ULL << 50 );
@@ -185,80 +192,86 @@ float_128  float_128::add_opposite_signs( float_128 & float_to_add )
     mantissa1[0] = ( mantissa1[0] << 14 ) >> 14;
     mantissa2[0] = ( mantissa2[0] << 14 ) >> 14;
     
+    std::cout << "bits: " << std::endl;
+    display_array( bits );
+    
+    
+    std::cout << "float_to_add.bits: " << std::endl;
+    display_array( float_to_add.bits );
+    
     if( leq_abs(float_to_add ) ){
         // substract mantissa of *this from mantissa of float_to_add
         
         if( exp1 < exp2 ){
             
             shift_bits_in_array_right(mantissa1, exp2-exp1);
+            mantissa1[0] = mantissa1[0] | ( 1ULL << ( 49 -exp2+exp1) );
         }
         
-           int accumulator = 0;
+          
 
-  /*  std::cout << "matisissa1: " << std::endl;
+       // std::cout << "matisissa1: " << std::endl;
+       // display_array( mantissa1 );
+    std::cout << "matisissa1: " << std::endl;
     display_array(mantissa1);
     std::cout << "matisissa2: " << std::endl;
-    display_array(mantissa2);    */
+    display_array(mantissa2);    
     
         result[0] = 0;
         result[1] = 0;
         
+        
+        int tmp1[50+64+1];
+        int tmp2[50+64+1];
+        
+        int tmp[50+64+1];
+        
+        set_array( mantissa1, tmp1, 0, mantissa2, tmp2, 1);
+        
+       std::cout << "tmp1: ";
+        for( int i=0; i<50+64+1; i++ ){
+                std::cout << tmp1[i];
+                if( i==0 || i==1 || i==15 )
+                    std::cout << " ";
+        }
+        std::cout << std::endl;
+        std::cout << "tmp2: ";
+         for( int i=0; i<50+64+1; i++ ){
+                std::cout << tmp2[i];
+                if( i==0 || i==1 || i==15 )
+                    std::cout << " ";
+        }
+        std::cout << std::endl;
+       
 
     
-            for( int i=0; i<64; i++){
+            for( int i=114; i>-1; i--){
             
-                bool bit1 = ( mantissa1[1] >> i ) & 1; 
-                bool bit2 = ( mantissa2[1] >> i ) & 1; 
+               // bool bit1 = tmp1[i] 
+                //bool bit2 = tmp2[i]; 
                 
-                accumulator = bit2 - bit1;
+                tmp[i] = tmp2[i] - tmp1[i];
                 
-                if( accumulator < 0 ){
-                        
-                    accumulator += 2;
-                    int j = i+1;
-                    while( 1 ){
-                    
-                        if( j < 64 ){
-                            if ( ( ( mantissa2[1] >> j ) & 1 ) == 1 ){
-                                
-                                mantissa2[1] = mantissa2[1] &  ( ~(1 << j ) );
-                                
-                                break;
-                            }
-                            else{
-                                
-                                mantissa2[1] = mantissa2[1] | (1 << j );
-                            }
-                            
-                        }
-                        else{
-                            
-                            if ( ( ( mantissa2[0] >> j ) & 1 ) == 1 ){
-                                
-                                mantissa2[0] = mantissa2[0] &  ( ~(1 << j ) );
-                                
-                                break;
-                            }
-                            else{
-                                
-                                mantissa2[0] = mantissa2[0] | (1ULL << j );
-                            }
-                            
-                        }
-                        
-                        j++;
-                    }
-                    
+                if( tmp[i] < 0 ){
+                    tmp[i] += 2;
+                    tmp2[i-1]--;
                 }
-                
-                if( accumulator )
-                    result[1] = result[1] | ( 1ULL << i );
             }
             
             
-        result[0] = mantissa2[0] - mantissa1[0];
+        std::cout << "tmp: ";
+         for( int i=0; i<50+64+1; i++ ){
+                std::cout << tmp[i];
+                if( i==0 || i==1 || i==15 )
+                    std::cout << " ";
+        }
+        std::cout << std::endl;
+       
+            
+            
+         int places_to_shift = convert_to_mantissa(result, tmp );
         
-        int places_to_shift = 1;
+      /*  int places_to_shift = 1;
         while( places_to_shift < 50+64 ){
             
             if( places_to_shift < 51 )
@@ -274,10 +287,14 @@ float_128  float_128::add_opposite_signs( float_128 & float_to_add )
         }
         
         shift_bits_in_array_left(result, places_to_shift );
+        
+        */
             
         
         float_128 resultt;
         // TOD0: shift result to 1 + M, decreasing exp2
+        
+        std::cout << "shift mantissa: " << places_to_shift << " places " << std::endl; 
         
         
         resultt.bits[0] = result[0];

@@ -36,7 +36,7 @@ void shift_bits_in_array_right( uint64_t array [], int shift )
     less = less | higher_to_lower;
     
     uint64_t high = array[0] >> shift;
-    high = high | ( 1ULL << ( 50 -shift) );
+ //   high = high | ( 1ULL << ( 50 -shift) );
     
     array[0] = high;
     array[1] = less;
@@ -63,6 +63,57 @@ void display_array( uint64_t array[] )
     
     std::cout << std::endl;
     
+}
+
+
+void set_array( uint64_t bits1[], int arr1[], bool set_1, uint64_t bits2[], int arr2[], bool set_2)
+{
+    if( set_1 )
+        arr1[0] = 1;
+    else
+        arr1[0] = 0;
+    
+    if( set_2 )
+        arr2[0] = 1;
+    else
+        arr2[0] = 0;
+    
+    for( int i=0; i<50; i++){
+        arr1[i+1] = ( bits1[0] >> (49-i) ) & 1;
+        arr2[i+1] = ( bits2[0] >> (49-i) ) & 1;
+    }
+    
+    for( int i=0; i<64; i++){
+        arr1[i+1+50] = ( bits1[1] >> (63-i) ) & 1;
+        arr2[i+1+50] = ( bits2[1] >> (63-i) ) & 1;
+    }
+    
+}
+
+
+int convert_to_mantissa( uint64_t mantissa[], int arr[] ){
+    
+    int to_shift = 0;
+    while( ! arr[to_shift] ) to_shift++;
+    
+    mantissa[0] = 0;
+    mantissa[1] = 0;
+    
+    for( int i=14; i<64 &&  i+to_shift+1-14 <64+1+64; i++){
+            
+        if( arr[i+to_shift+1-14] )
+            mantissa[i] = mantissa[i] | ( 1ULL << (49-i) ) ;
+            
+    }
+    
+    
+    for( int i=0; i<64 && i+to_shift <64; i++){
+        
+        if( arr[i+to_shift+1-14+50] )
+            mantissa[i] = mantissa[i] | ( 1ULL << (63-i) );
+    }
+    
+    return to_shift;
 }
 
 
