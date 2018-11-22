@@ -191,13 +191,21 @@ float_128  float_128::add_opposite_signs( float_128 & float_to_add )
     
     mantissa1[0] = ( mantissa1[0] << 14 ) >> 14;
     mantissa2[0] = ( mantissa2[0] << 14 ) >> 14;
+
+    result[0] = 0;
+    result[1] = 0;
+        
+    int tmp1[50+64+1];
+    int tmp2[50+64+1];
+        
+    int tmp[50+64+1];
     
-    std::cout << "bits: " << std::endl;
-    display_array( bits );
+   // std::cout << "bits: " << std::endl;
+   // display_array( bits );
     
     
-    std::cout << "float_to_add.bits: " << std::endl;
-    display_array( float_to_add.bits );
+  //  std::cout << "float_to_add.bits: " << std::endl;
+  //  display_array( float_to_add.bits );
     
     if( leq_abs(float_to_add ) ){
         // substract mantissa of *this from mantissa of float_to_add
@@ -208,95 +216,30 @@ float_128  float_128::add_opposite_signs( float_128 & float_to_add )
             mantissa1[0] = mantissa1[0] | ( 1ULL << ( 50 -exp2+exp1) );
         }
         
-          
-
        // std::cout << "matisissa1: " << std::endl;
-       // display_array( mantissa1 );
-    std::cout << "matisissa1: " << std::endl;
-    display_array(mantissa1);
-    std::cout << "matisissa2: " << std::endl;
-    display_array(mantissa2);    
-    
-        result[0] = 0;
-        result[1] = 0;
-        
-        
-        int tmp1[50+64+1];
-        int tmp2[50+64+1];
-        
-        int tmp[50+64+1];
+       // display_array(mantissa1);
+       // std::cout << "matisissa2: " << std::endl;
+       // display_array(mantissa2);    
         
         set_array( mantissa1, tmp1, 0, mantissa2, tmp2, 1);
-        
-       std::cout << "tmp1: ";
-        for( int i=0; i<50+64+1; i++ ){
-                std::cout << tmp1[i];
-                if( i==0 || i==1 || i==15 )
-                    std::cout << " ";
-        }
-        std::cout << std::endl;
-        std::cout << "tmp2: ";
-         for( int i=0; i<50+64+1; i++ ){
-                std::cout << tmp2[i];
-                if( i==0 || i==1 || i==15 )
-                    std::cout << " ";
-        }
-        std::cout << std::endl;
-       
-
     
-            for( int i=114; i>-1; i--){
+        for( int i=114; i>-1; i--){
             
-               // bool bit1 = tmp1[i] 
-                //bool bit2 = tmp2[i]; 
+            tmp[i] = tmp2[i] - tmp1[i];
                 
-                tmp[i] = tmp2[i] - tmp1[i];
-                
-                if( tmp[i] < 0 ){
-                    tmp[i] += 2;
-                    tmp2[i-1]--;
-                }
+            if( tmp[i] < 0 ){
+                tmp[i] += 2;
+                tmp2[i-1]--;
             }
-            
-            
-        std::cout << "tmp: ";
-         for( int i=0; i<50+64+1; i++ ){
-                std::cout << tmp[i];
-                if( i==0 || i==1 || i==15 )
-                    std::cout << " ";
         }
-        std::cout << std::endl;
-       
             
             
          int places_to_shift = convert_to_mantissa(result, tmp );
-        
-      /*  int places_to_shift = 1;
-        while( places_to_shift < 50+64 ){
-            
-            if( places_to_shift < 51 )
-                if( (result[0] >> ( 50 - places_to_shift) ) & 1 ){
-                    break;
-                }
-            else
-                if( result[1] >> (50 + 64 - places_to_shift) & 1 )
-                    break;
-                
-            places_to_shift++;
-            
-        }
-        
-        shift_bits_in_array_left(result, places_to_shift );
-        
-        */
-            
-        
+
         float_128 resultt;
-        // TOD0: shift result to 1 + M, decreasing exp2
+    //    std::cout << "shift mantissa: " << places_to_shift << " places " << std::endl; 
         
-        std::cout << "shift mantissa: " << places_to_shift << " places " << std::endl; 
-        
-        display_array(result);
+        //display_array(result);
         resultt.bits[0] = result[0];
         resultt.bits[1] = result[1];
     
@@ -309,7 +252,36 @@ float_128  float_128::add_opposite_signs( float_128 & float_to_add )
         
     }
     
+    if( exp2 < exp1 ){
+        shift_bits_in_array_right(mantissa2, exp1-exp2);
+        mantissa2[0] = mantissa2[0] | ( 1ULL << ( 50 - exp1 + exp2) );
+        
+    }
+    
+    set_array( mantissa1, tmp1, 1, mantissa2, tmp2, 0);
+
+    for( int i=114; i>-1; i--){
+            
+       tmp[i] = tmp1[i] - tmp2[i];
+                
+        if( tmp[i] < 0 ){
+            tmp[i] += 2;
+            tmp1[i-1]--;
+        }
+    }
+    
+    int places_to_shift = convert_to_mantissa(result, tmp );
+               
     float_128 resultt;
+    
+    resultt.bits[0] = result[0];
+    resultt.bits[1] = result[1];
+    
+    resultt.set_exponent(exp1+4096 - places_to_shift);
+    if( is_negative() )
+        resultt.bits[0] = resultt.bits[0] | (1ULL << 63 );
+        
+    
     return resultt;
 }
 

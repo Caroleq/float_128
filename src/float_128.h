@@ -12,8 +12,6 @@
 class float_128
 {
     
-  //long long lower_bits;
- // long long higher_bits;   // TODO - reimplement to 2-elements array
   
   uint64_t bits[2];
   
@@ -78,20 +76,6 @@ public:
        uint8_t *ptr_to_int = (uint8_t *)&number;
        int  sum = 0;
 
-      /* for( int byte = sizeof(int)-1; byte > -1; byte--)
-        {
-            int value = ptr_to_int[byte];
-            int bit;
-            
-            for(bit = 0; bit < 8; bit++ )
-            {
-                if( sum > 0 &&  ( (double)number )/( ( sum * 2 ) + ( (value>>(7-bit) ) & 1) )<= 1)
-                    return sum;
-                
-                sum = ( sum * 2 ) + ( (value>>(7-bit) ) & 1);
-                
-            }
-        }*/
       
       int exp = 0;
       while(  ( number / (double)(1ULL<<(exp+1)) ) > 1){
@@ -99,7 +83,6 @@ public:
         exp++;
       }
       
-      std::cout << "exp: " << exp <<  " for " << number << std::endl;
         
         return exp;
         
@@ -305,6 +288,12 @@ public:
     bool operator>=( float_128 & float_to_compare ){
         
         return ( !(*this<=float_to_compare) || *this==float_to_compare );
+    }
+    
+    float_128( const float_128& to_copy ){
+        
+        bits[0] = to_copy.bits[0];
+        bits[1] = to_copy.bits[1];
     }
 };
 
