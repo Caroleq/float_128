@@ -102,7 +102,7 @@ int convert_to_mantissa( uint64_t mantissa[], int arr[] ){
     for( int i=14; i<64 &&  i+to_shift+1-14 <64+1+64; i++){
             
         if( arr[i+to_shift+1-14] )
-            mantissa[i] = mantissa[i] | ( 1ULL << (49-i) ) ;
+            mantissa[0] = mantissa[0] | ( 1ULL << (63-i) ) ;
             
     }
     
@@ -110,7 +110,7 @@ int convert_to_mantissa( uint64_t mantissa[], int arr[] ){
     for( int i=0; i<64 && i+to_shift <64; i++){
         
         if( arr[i+to_shift+1-14+50] )
-            mantissa[i] = mantissa[i] | ( 1ULL << (63-i) );
+            mantissa[1] = mantissa[1] | ( 1ULL << (63-i) );
     }
     
     return to_shift;

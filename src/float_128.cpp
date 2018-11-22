@@ -205,7 +205,7 @@ float_128  float_128::add_opposite_signs( float_128 & float_to_add )
         if( exp1 < exp2 ){
             
             shift_bits_in_array_right(mantissa1, exp2-exp1);
-            mantissa1[0] = mantissa1[0] | ( 1ULL << ( 49 -exp2+exp1) );
+            mantissa1[0] = mantissa1[0] | ( 1ULL << ( 50 -exp2+exp1) );
         }
         
           
@@ -296,7 +296,7 @@ float_128  float_128::add_opposite_signs( float_128 & float_to_add )
         
         std::cout << "shift mantissa: " << places_to_shift << " places " << std::endl; 
         
-        
+        display_array(result);
         resultt.bits[0] = result[0];
         resultt.bits[1] = result[1];
     
