@@ -6,7 +6,7 @@ extern void shift_bits_in_array_right( uint64_t array [], int shift );
 extern void set_array( uint64_t bits1[], int arr1[], bool set_1, uint64_t bits2[], int arr2[], bool set_2);
 extern int convert_to_mantissa( uint64_t mantissa[], int arr[] );
 
-float_128 float_128::add_absolute_values( float_128 & float_to_add )
+float_128 float_128::add_same_sign( float_128 & float_to_add )
 {
     
     int exp1 = get_exponent();
@@ -31,6 +31,7 @@ float_128 float_128::add_absolute_values( float_128 & float_to_add )
 
     
     int exp = 0;
+    
     
     if( exp1 > exp2 ){
         exp = exp1;
@@ -65,6 +66,7 @@ float_128 float_128::add_absolute_values( float_128 & float_to_add )
     
     result[0] = 0;
     result[1] = 0;
+
     
 
     for( int i=0; i<64; i++){
@@ -84,7 +86,6 @@ float_128 float_128::add_absolute_values( float_128 & float_to_add )
         }
         
 
-        
     for( int i=0; i< 50; i++){
          
             bool bit1 = ( mantissa1[0] >> i ) & 1; 
@@ -97,15 +98,17 @@ float_128 float_128::add_absolute_values( float_128 & float_to_add )
             }
             
             if( accumulator > 1)
-                accumulator = accumulator / 2;
+                accumulator = accumulator >> 1;
             else
                 accumulator = 0;
         }
         
 
 
-    if( accumulator + one1 + one2  == 2)
+    if( accumulator + one1 + one2  == 2){
         exp++;
+        shift_bits_in_array_right(result, 1);
+    }
     
     
     if( is_negative() )
@@ -113,6 +116,8 @@ float_128 float_128::add_absolute_values( float_128 & float_to_add )
     
     
     float_128 resultt;
+
+    
     resultt.bits[0] = result[0];
     resultt.bits[1] = result[1];
     
@@ -213,7 +218,7 @@ float_128  float_128::add_opposite_signs( float_128 & float_to_add )
         if( exp1 < exp2 ){
             
             shift_bits_in_array_right(mantissa1, exp2-exp1);
-            mantissa1[0] = mantissa1[0] | ( 1ULL << ( 50 -exp2+exp1) );
+            mantissa1[0] = mantissa1[0] | ( 1ULL << ( 50 - exp2 + exp1 ) );
         }
         
        // std::cout << "matisissa1: " << std::endl;
@@ -245,7 +250,8 @@ float_128  float_128::add_opposite_signs( float_128 & float_to_add )
     
         resultt.set_exponent(exp2+4096 - places_to_shift);
         if( float_to_add.is_negative() )
-            resultt.bits[0] = resultt.bits[0] | (1ULL << 63 );
+            resultt.set_bit( 127 );
+           // resultt.bits[0] = resultt.bits[0] | (1ULL << 63 );
         
     
         return resultt;
@@ -279,7 +285,8 @@ float_128  float_128::add_opposite_signs( float_128 & float_to_add )
     
     resultt.set_exponent(exp1+4096 - places_to_shift);
     if( is_negative() )
-        resultt.bits[0] = resultt.bits[0] | (1ULL << 63 );
+        resultt.set_bit(127);
+       // resultt.bits[0] = resultt.bits[0] | (1ULL << 63 );
         
     
     return resultt;

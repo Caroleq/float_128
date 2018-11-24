@@ -7,13 +7,24 @@
 #include <iostream>
 // x = (-1)^s*2^(bias-E)*(1+M)
 
+/*
+ * 
+ * Class implementing floating point number of size 128 bits (number stored in two-element uint64_t array
+ * It enables arithmetic operations on numbers. May be useful e.g. while summing floating point numbers
+ * (greater accuracy then summng `double` or `float` type numbers).
+ */
 
 
 class float_128
 {
-    
+
+    /*
+     * array storing number information
+     * Higher bits are stored in bits[0], lower in bits[1]
+     * Bits are index in descending order e.g. 127 bit of number refers to ( bits[0] >> 63 ) & 1 bit
+     */
   
-  uint64_t bits[2];
+  uint64_t bits[2];             // 
   
 public:
     float_128(){
@@ -21,11 +32,14 @@ public:
         bits[1] = 0;
     }
     float_128( int number ){
+        /*
+         * Creating number from integer
+         */
         
         bits[0] = bits[1] = 0;
         
         if( number < 0 )
-            set_bit(127);
+            set_bit( 127 );
 
         if( number == 0)
             return;
@@ -39,7 +53,9 @@ public:
     
     
     float_128( double number ) {
-
+        /*
+         * Creating number from double
+         */
         bits[0] = bits[1] = 0;
         
         if( number < 0 )
@@ -58,32 +74,20 @@ public:
     }
     
     
-    double get_pow_float( int power ){
-        
-        double result = 1;
-        
-        while( power > 0 ){
-            result /= 2.0;
-            power--;
-        }
-
-        return result;
-    }
-    
-    int get_expoonent_from_int( int number){
+    uint8_t get_expoonent_from_int( int number){
+        /*
+         * Function returns exp form
+         * number = (-1)^{sign} * 2^(exp) * ( 1 + M )
+         * and 0 < M < 1
+         */
      
 
        uint8_t *ptr_to_int = (uint8_t *)&number;
-       int  sum = 0;
-
+       uint8_t exp = 0;
+       
+       while(  ( number / (double)(1ULL<<(exp+1)) ) > 1)
+            exp++;
       
-      int exp = 0;
-      while(  ( number / (double)(1ULL<<(exp+1)) ) > 1){
-          
-        exp++;
-      }
-      
-        
         return exp;
         
     }
@@ -91,18 +95,19 @@ public:
     
     
     void set_mantissa( double number){
+        /*
+         * Sets mantissa of *this to mantissa stored in `number` 
+         */
      
-
        uint8_t *ptr_to_double = (uint8_t *)&number;
 
        for( int byte = 0; byte < sizeof(double); byte++)
         {
             uint8_t value = ptr_to_double[byte];
-            int bit;
+            uint8_t bit;
             
             for(bit = 0; bit < 8; bit++)
             {
-                
                 if( value & 1) 
                     set_bit(byte*8+62+bit);
                 if( byte * 8 + bit == 51 )
@@ -116,13 +121,16 @@ public:
 
     int get_exponent_from_double( double number )
     {
+        /*
+         * Extracts exponent of `number`
+         */
         
         uint8_t *ptr_to_double = (uint8_t *)&number;
-        int  sum = 0;
+        uint8_t  sum = 0;
         for( int byte = sizeof(double)-1; byte > 5; byte--)
         {
-            int value = ptr_to_double[byte];
-            int bit;
+            uint8_t value = ptr_to_double[byte];
+            uint8_t  bit;
             
             for(bit = 0; bit < 8; bit++ )
             {
@@ -142,6 +150,8 @@ public:
     
     
     void set_exponent( int exp ){
+        /*  Sets exponent to `exp` */
+        
         
         for( int i=114; i<127; i++){
             
@@ -153,10 +163,12 @@ public:
             exp = exp >> 1;
         }
         
+        
     }
 
     
     bool get_bit( int index ){
+        /* returns `index` bit of stored number*/
      
         if( index < 0 || index > 127 )
             return -1;
@@ -170,7 +182,7 @@ public:
     
     
     void set_bit( int index ){
-        
+        /*  Sets bit `index` of `bits` to 1 */
      
         if( index < 0 || index > 127 )
             return;
@@ -187,6 +199,7 @@ public:
     
     
     void clear_bit( int index ){
+        /*  Sets bit `index` of `bits` to 0 */
      
         if( index < 0 || index > 127 )
             return;
@@ -203,6 +216,9 @@ public:
     
     int get_exponent()
     {
+        /*
+         * Returns exponent of number stored in bits
+         */
             int exponent = 0;
             
             for( int i=126; i>113; i--){
@@ -211,22 +227,25 @@ public:
             }
             
             return exponent - 4096;
-        
-        
     }
     
     
     const std::string binary_representation(){
+        /*
+         * Returns string representing stored number from the most significent
+         * bit to the least significante one. Sign, exponent and mantissa bits
+         * are saparated with space.
+         */
         
-     std::string binary = "";
+        std::string binary = "";
      
-    for( int i=127; i>-1 ; i--){
-       binary += ( get_bit(i)+48 );  
-       if( i == 127 || i == 114 )
-           binary += " ";
-     }
+        for( int i=127; i>-1 ; i--){
+            binary += ( get_bit(i)+48 );  
+            if( i == 127 || i == 114 )
+                binary += " ";
+        }
      
-     return binary;
+        return binary;
     }
     
     
@@ -239,21 +258,29 @@ public:
     float_128 operator+ ( float_128 & float_to_add ){
       
         if( is_negative() && float_to_add.is_negative() ||  !is_negative() && !float_to_add.is_negative() ){
-           // float_128 result = add_absolute_values(float_to_add);
-            return add_absolute_values(float_to_add);
+            return add_same_sign(float_to_add);
         }
         
-      //  float_128 result;
-        
-        
-      //  if( leq_abs( float_to_add) )
         return add_opposite_signs( float_to_add );
         
     }
     
-    float_128 add_absolute_values( float_128 & float_to_add);
+    float_128 operator- ( float_128 & float_to_substract  ){
+     
+        if( is_negative() && float_to_substract.is_negative() ||  !is_negative() && !float_to_substract.is_negative() ){
+            return add_opposite_signs( float_to_substract );
+        }
+        
+  //      if( leq_abs(float_to_substract) )
+    //        return float_to_substract.add_same_sign(*this);
+
+        return add_same_sign( float_to_substract );
+        
+    }
+    
+    float_128 add_same_sign( float_128 & float_to_add);
     float_128 add_opposite_signs( float_128 & float_to_add );
-   // void shift_bits_in_array( uint64_t array [], int shift );
+
     bool leq_abs(  float_128 & float_to_compare );
     bool geq_abs( float_128 & float_to_compare );
     bool eq_abs(  float_128 & float_to_compare );
