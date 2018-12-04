@@ -5,6 +5,7 @@
 #include <string>
 #include <cstdint>
 #include <iostream>
+#include <math.h>
 // x = (-1)^s*2^(bias-E)*(1+M)
 
 /*
@@ -47,31 +48,14 @@ public:
         double to_convert = abs( number );
           
         int exponent = get_expoonent_from_int(abs( number) );
+        
+
         set_exponent( exponent + 4095 );
         set_mantissa(  to_convert );
     }
     
     
-    float_128( double number ) {
-        /*
-         * Creating number from double
-         */
-        bits[0] = bits[1] = 0;
-        
-        if( number < 0 )
-            set_bit(127);
-
-        if( number == 0)
-            return;
-        
-        double to_convert = abs( number );
-        
-        int exponent = get_exponent_from_double( to_convert );
-        set_exponent( exponent + 4095 );
-        set_mantissa( to_convert );
-        
-        
-    }
+    float_128( double number );
     
     
     uint8_t get_expoonent_from_int( int number){
@@ -85,7 +69,7 @@ public:
        uint8_t *ptr_to_int = (uint8_t *)&number;
        uint8_t exp = 0;
        
-       while(  ( number / (double)(1ULL<<(exp+1)) ) > 1)
+       while(  ( number / (double)(1ULL<<(exp+1)) ) >= 1)
             exp++;
       
         return exp;
@@ -117,36 +101,6 @@ public:
         }
     }
     
-
-
-    int get_exponent_from_double( double number )
-    {
-        /*
-         * Extracts exponent of `number`
-         */
-        
-        uint8_t *ptr_to_double = (uint8_t *)&number;
-        uint8_t  sum = 0;
-        for( int byte = sizeof(double)-1; byte > 5; byte--)
-        {
-            uint8_t value = ptr_to_double[byte];
-            uint8_t  bit;
-            
-            for(bit = 0; bit < 8; bit++ )
-            {
-                
-                sum = ( sum * 2 ) + ( (value>>(7-bit) ) & 1);
-                if( byte * 8 + bit == 52 )
-                    return sum - 2047;
-            }
-            
-            if( byte * 8 + bit == 52 )
-                    break;
-
-        }
-        return sum - 2047;
-        
-    }
     
     
     void set_exponent( int exp ){

@@ -3,6 +3,8 @@
 #include "from_int_test.h"
 #include "addition_test.h"
 #include "substraction_test.h"
+#include "from_double_test.h"
+
 
 int main(int ac, char* av[])
 {

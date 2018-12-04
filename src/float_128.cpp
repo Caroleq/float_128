@@ -6,6 +6,30 @@ extern void shift_bits_in_array_right( uint64_t array [], int shift );
 extern void set_array( uint64_t bits1[], int arr1[], bool set_1, uint64_t bits2[], int arr2[], bool set_2);
 extern int convert_to_mantissa( uint64_t mantissa[], int arr[] );
 
+
+
+float_128::float_128( double number ) {
+    /*
+     * Creating number from double
+     */
+    bits[0] = bits[1] = 0;
+        
+    if( number < 0 )
+        set_bit(127);
+
+    if( number == 0)
+        return;
+        
+    double to_convert = abs( number );
+        
+    int exponent;
+    frexp (number , &exponent);
+        
+    set_exponent( exponent - 2 + 4096 );
+    set_mantissa( to_convert );
+        
+}
+
 float_128 float_128::add_same_sign( float_128 & float_to_add )
 {
     
