@@ -1,6 +1,17 @@
 #include <cstdint>
 #include <iostream>
 
+
+int get_bit( uint64_t bit_arr[], int index );
+void shift_bits_in_array_left( uint64_t array[] , int positions );
+void shift_bits_in_array_right( uint64_t array [], int shift );
+void display_array( uint64_t array[] );
+void set_array( uint64_t bits1[], int arr1[], bool set_1, uint64_t bits2[], int arr2[], bool set_2);
+int convert_to_mantissa( uint64_t mantissa[], int arr[] );
+void multiply_mantissas( uint64_t mantissa1[], uint64_t mantissa2[], int result [] );
+
+
+
 void shift_bits_in_array_left( uint64_t array[] , int positions )
 {
     
@@ -117,3 +128,46 @@ int convert_to_mantissa( uint64_t mantissa[], int arr[] ){
 }
 
 
+int get_bit( uint64_t bit_arr[], int index )
+{
+    if( index > 63 ){
+        
+        index -= 64;
+        
+        return ( bit_arr[0] >> index ) & 1;
+    }
+    
+    return ( bit_arr[1] >> index ) & 1;
+    
+}
+
+void multiply_mantissas( uint64_t mantissa1[], uint64_t mantissa2[], int result [] )
+{
+    mantissa1[0] = ( mantissa1[0] << 14 ) >> 14;
+    mantissa2[0] = ( mantissa2[0] << 14 ) >> 14;
+    
+    mantissa1[0] |= 2 << 13;
+    mantissa2[0] |= 2 << 13;
+    
+    
+    for( int i=0; i< 230; i++)
+        result[i] = 0;
+    
+    for( int i=0; i < 114; i++ ){
+        for( int j=0; j < 114; j++){
+            
+            int bit1 = get_bit( mantissa1, i );
+            int bit2 = get_bit( mantissa2, j);
+            
+            result[ 229 - j - i ] += bit1 * bit2;
+        }
+    }
+    
+    for( int i=229; i>-1; i--){
+        int val = result[i];
+        result[i] = val % 2;
+        result[i-1] += val / 2;
+    }
+    
+
+}

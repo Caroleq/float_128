@@ -57,6 +57,8 @@ public:
     
     float_128( double number );
     
+    float_128( const float_128 & number );
+    
     
     uint8_t get_expoonent_from_int( int number){
         /*
@@ -225,12 +227,12 @@ public:
             return add_opposite_signs( float_to_substract );
         }
         
-  //      if( leq_abs(float_to_substract) )
-    //        return float_to_substract.add_same_sign(*this);
 
         return add_same_sign( float_to_substract );
         
     }
+    
+    float_128 operator* (  float_128 & float_to_multiply  );
     
     float_128 add_same_sign( float_128 & float_to_add);
     float_128 add_opposite_signs( float_128 & float_to_add );
@@ -271,11 +273,6 @@ public:
         return ( !(*this<=float_to_compare) || *this==float_to_compare );
     }
     
-    float_128( const float_128& to_copy ){
-        
-        bits[0] = to_copy.bits[0];
-        bits[1] = to_copy.bits[1];
-    }
 };
 
 #endif

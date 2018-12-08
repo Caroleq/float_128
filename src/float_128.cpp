@@ -5,7 +5,7 @@ extern void shift_bits_in_array_left( uint64_t array[] , int positions );
 extern void shift_bits_in_array_right( uint64_t array [], int shift );
 extern void set_array( uint64_t bits1[], int arr1[], bool set_1, uint64_t bits2[], int arr2[], bool set_2);
 extern int convert_to_mantissa( uint64_t mantissa[], int arr[] );
-
+extern void multiply_mantissas( uint64_t mantissa1[], uint64_t mantissa2[], int result [] );
 
 
 float_128::float_128( double number ) {
@@ -25,9 +25,18 @@ float_128::float_128( double number ) {
     int exponent;
     frexp (number , &exponent);
         
-    set_exponent( exponent - 2 + 4096 );
+    set_exponent( exponent - 1 + 4095 );
     set_mantissa( to_convert );
         
+}
+
+
+float_128::float_128( const float_128 & number )
+{
+    
+    bits[0] = number.bits[0];
+    bits[1] = number.bits[1];
+    
 }
 
 float_128 float_128::add_same_sign( float_128 & float_to_add )
@@ -317,4 +326,39 @@ float_128  float_128::add_opposite_signs( float_128 & float_to_add )
 }
 
 
-
+float_128 float_128::operator* (  float_128 & float_to_multiply  )
+{
+    float_128 result;
+    
+    uint64_t mantissa1[2];
+    uint64_t mantissa2[2];
+    
+    mantissa1[0] = bits[0]; mantissa1[1] = bits[1];
+    mantissa2[0] = float_to_multiply.bits[0]; mantissa2[1] = float_to_multiply.bits[1];
+    
+    int result_mantissa[130];
+    
+    multiply_mantissas( mantissa1, mantissa2, result_mantissa );
+    
+    int exp = 0;
+    
+    int start = 1;
+    if( result_mantissa[0] ){
+        start = 0;
+        exp += 1;
+    }   
+    
+    exp += get_exponent() + float_to_multiply.get_exponent();
+    
+    for( int i=start; i < 114+start; i++ )
+        if( result_mantissa[ i ] )
+            result.set_bit(  114 - i );
+    
+        
+    result.set_exponent( exp + 4095 );
+    
+    if( is_negative() && float_to_multiply.is_negative() ||  !is_negative() && !float_to_multiply.is_negative())
+        result.set_bit( 127 );
+        
+    return result;
+}
