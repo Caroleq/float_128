@@ -146,18 +146,19 @@ void multiply_mantissas( uint64_t mantissa1[], uint64_t mantissa2[], int result 
     mantissa1[0] = ( mantissa1[0] << 14 ) >> 14;
     mantissa2[0] = ( mantissa2[0] << 14 ) >> 14;
     
-    mantissa1[0] |= 2 << 13;
-    mantissa2[0] |= 2 << 13;
+    mantissa1[0] |= 1ULL << 50;
+    mantissa2[0] |= 1ULL << 50;
     
     
     for( int i=0; i< 230; i++)
         result[i] = 0;
     
-    for( int i=0; i < 114; i++ ){
-        for( int j=0; j < 114; j++){
+    for( int i=0; i < 115; i++ ){
+        for( int j=0; j < 115; j++){
             
             int bit1 = get_bit( mantissa1, i );
             int bit2 = get_bit( mantissa2, j);
+            
             
             result[ 229 - j - i ] += bit1 * bit2;
         }

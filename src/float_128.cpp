@@ -34,6 +34,8 @@ float_128::float_128( double number ) {
 float_128::float_128( const float_128 & number )
 {
     
+    //std::cout << "Konstruktor kopiujacjy" << std::endl;
+    
     bits[0] = number.bits[0];
     bits[1] = number.bits[1];
     
@@ -154,7 +156,7 @@ float_128 float_128::add_same_sign( float_128 & float_to_add )
     resultt.bits[0] = result[0];
     resultt.bits[1] = result[1];
     
-    resultt.set_exponent(exp+4096);
+    resultt.set_exponent(exp+4095);
     
   
     
@@ -281,7 +283,7 @@ float_128  float_128::add_opposite_signs( float_128 & float_to_add )
         resultt.bits[0] = result[0];
         resultt.bits[1] = result[1];
     
-        resultt.set_exponent(exp2+4096 - places_to_shift);
+        resultt.set_exponent(exp2+4095 - places_to_shift);
         if( float_to_add.is_negative() )
             resultt.set_bit( 127 );
            // resultt.bits[0] = resultt.bits[0] | (1ULL << 63 );
@@ -316,7 +318,7 @@ float_128  float_128::add_opposite_signs( float_128 & float_to_add )
     resultt.bits[0] = result[0];
     resultt.bits[1] = result[1];
     
-    resultt.set_exponent(exp1+4096 - places_to_shift);
+    resultt.set_exponent(exp1+4095 - places_to_shift);
     if( is_negative() )
         resultt.set_bit(127);
        // resultt.bits[0] = resultt.bits[0] | (1ULL << 63 );
@@ -336,9 +338,13 @@ float_128 float_128::operator* (  float_128 & float_to_multiply  )
     mantissa1[0] = bits[0]; mantissa1[1] = bits[1];
     mantissa2[0] = float_to_multiply.bits[0]; mantissa2[1] = float_to_multiply.bits[1];
     
-    int result_mantissa[130];
+    int result_mantissa[230];
+    
+  //  std::cout << "Before multiply_mantissas" << std::endl;
     
     multiply_mantissas( mantissa1, mantissa2, result_mantissa );
+    
+  //  std::cout << "After multiply_mantissas" << std::endl;
     
     int exp = 0;
     
@@ -347,6 +353,10 @@ float_128 float_128::operator* (  float_128 & float_to_multiply  )
         start = 0;
         exp += 1;
     }   
+    
+    
+  //  std::cout << "This->exp == " << get_exponent() << "  float_to_multiply->exp" << float_to_multiply.get_exponent() <<std::endl; 
+    
     
     exp += get_exponent() + float_to_multiply.get_exponent();
     
@@ -357,8 +367,12 @@ float_128 float_128::operator* (  float_128 & float_to_multiply  )
         
     result.set_exponent( exp + 4095 );
     
-    if( is_negative() && float_to_multiply.is_negative() ||  !is_negative() && !float_to_multiply.is_negative())
+    if( is_negative() && !float_to_multiply.is_negative() ||  !is_negative() && float_to_multiply.is_negative())
         result.set_bit( 127 );
+    
+   // std::cout << "The end of function" << std::endl;
+    
+   // std::cout << result.binary_representation() << std::endl;
         
     return result;
 }

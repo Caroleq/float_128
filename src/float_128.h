@@ -48,8 +48,6 @@ public:
         double to_convert = abs( number );
           
         int exponent = get_expoonent_from_int(abs( number) );
-        
-
         set_exponent( exponent + 4095 );
         set_mantissa(  to_convert );
     }
@@ -182,7 +180,7 @@ public:
                 
             }
             
-            return exponent - 4096;
+            return exponent - 4095;
     }
     
     
@@ -271,6 +269,17 @@ public:
     bool operator>=( float_128 & float_to_compare ){
         
         return ( !(*this<=float_to_compare) || *this==float_to_compare );
+    }
+    
+    
+    float_128 operator= (  float_128 & float_to_assign){
+        if( &float_to_assign == this)
+            return *this;
+        
+        bits[0] = float_to_assign.bits[0];
+        bits[1] = float_to_assign.bits[1];
+        
+        return *this;
     }
     
 };
