@@ -164,11 +164,12 @@ void multiply_mantissas( uint64_t mantissa1[], uint64_t mantissa2[], int result 
         }
     }
     
-    for( int i=229; i>-1; i--){
+    
+    for( int i=229; i>0; i--){
         int val = result[i];
         result[i] = val % 2;
         result[i-1] += val / 2;
     }
     
-
+    
 }

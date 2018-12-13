@@ -239,28 +239,7 @@ public:
     bool geq_abs( float_128 & float_to_compare );
     bool eq_abs(  float_128 & float_to_compare );
     
-    bool operator<= ( float_128 & float_to_compare){
-        
-        if( is_negative() && !float_to_compare.is_negative() ){
-                return 1;
-        }
-        if( !is_negative() && float_to_compare.is_negative() ){
-                return 0;
-        }
-        
-        int sign = ( bits[0] >> 63 ) & 1;
-        
-        switch( sign ){
-            
-            case 0:
-                return leq_abs( float_to_compare  );
-                break;
-            case 1:
-                return geq_abs( float_to_compare );
-        }
-        
-        return 0;
-    }
+    bool operator<= ( float_128 & float_to_compare);
     
     bool operator== (  float_128 & float_to_compare){
       return ( float_to_compare.bits[0] == bits[0] || float_to_compare.bits[1] == bits[1] );   

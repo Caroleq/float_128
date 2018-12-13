@@ -340,29 +340,22 @@ float_128 float_128::operator* (  float_128 & float_to_multiply  )
     
     int result_mantissa[230];
     
-  //  std::cout << "Before multiply_mantissas" << std::endl;
-    
     multiply_mantissas( mantissa1, mantissa2, result_mantissa );
-    
-  //  std::cout << "After multiply_mantissas" << std::endl;
     
     int exp = 0;
     
-    int start = 1;
-    if( result_mantissa[0] ){
-        start = 0;
+    int start = 2;
+    if( result_mantissa[0]  ){
+        start = 1;
         exp += 1;
     }   
     
-    
-  //  std::cout << "This->exp == " << get_exponent() << "  float_to_multiply->exp" << float_to_multiply.get_exponent() <<std::endl; 
-    
-    
     exp += get_exponent() + float_to_multiply.get_exponent();
     
-    for( int i=start; i < 114+start; i++ )
-        if( result_mantissa[ i ] )
-            result.set_bit(  114 - i );
+    for( int i=0; i < 114; i++ )
+        if( result_mantissa[ i + start ] ){
+            result.set_bit(  113 - i);
+        }
     
         
     result.set_exponent( exp + 4095 );
@@ -370,9 +363,31 @@ float_128 float_128::operator* (  float_128 & float_to_multiply  )
     if( is_negative() && !float_to_multiply.is_negative() ||  !is_negative() && float_to_multiply.is_negative())
         result.set_bit( 127 );
     
-   // std::cout << "The end of function" << std::endl;
-    
-   // std::cout << result.binary_representation() << std::endl;
         
     return result;
 }
+
+
+
+bool float_128::operator<= ( float_128 & float_to_compare){
+        
+        if( is_negative() && !float_to_compare.is_negative() ){
+                return 1;
+        }
+        if( !is_negative() && float_to_compare.is_negative() ){
+                return 0;
+        }
+        
+        int sign = ( bits[0] >> 63 ) & 1;
+        
+        switch( sign ){
+            
+            case 0:
+                return leq_abs( float_to_compare  );
+                break;
+            case 1:
+                return geq_abs( float_to_compare );
+        }
+        
+        return 0;
+    }
