@@ -47,7 +47,6 @@ void shift_bits_in_array_right( uint64_t array [], int shift )
     less = less | higher_to_lower;
     
     uint64_t high = array[0] >> shift;
- //   high = high | ( 1ULL << ( 50 -shift) );
     
     array[0] = high;
     array[1] = less;
@@ -105,22 +104,28 @@ void set_array( uint64_t bits1[], int arr1[], bool set_1, uint64_t bits2[], int 
 int convert_to_mantissa( uint64_t mantissa[], int arr[] ){
     
     int to_shift = 0;
-    while( ! arr[to_shift] ) to_shift++;
+    while( (! arr[to_shift]) && to_shift<114) to_shift++;
+    
     
     mantissa[0] = 0;
     mantissa[1] = 0;
     
-    for( int i=14; i<64 &&  i+to_shift+1-14 <64+1+64; i++){
+    if( to_shift == 114 && arr[to_shift] == 0 )
+        return -1;
+    
+    
+    
+    for( int i=14; i<64 &&  i+to_shift <128; i++){
             
-        if( arr[i+to_shift+1-14] )
+        if( arr[i+to_shift-13] )
             mantissa[0] = mantissa[0] | ( 1ULL << (63-i) ) ;
             
     }
     
-    
+    // error
     for( int i=0; i<64 && i+to_shift <64; i++){
         
-        if( arr[i+to_shift+1-14+50] )
+        if( arr[i+to_shift+50] )
             mantissa[1] = mantissa[1] | ( 1ULL << (63-i) );
     }
     

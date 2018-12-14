@@ -8,6 +8,38 @@ extern int convert_to_mantissa( uint64_t mantissa[], int arr[] );
 extern void multiply_mantissas( uint64_t mantissa1[], uint64_t mantissa2[], int result [] );
 
 
+
+
+
+float_128::float_128 ( std::string binary ){
+    /*
+     * Creates a number from string of length 128 consisitng of ones andzeros
+     * 
+     */
+    
+    
+    bits[0] = bits[1] = 0;
+    
+    if( binary.size() != 128 ){
+        return;
+    }
+    
+    for( int i=0; i<128; i++){
+        
+         if( binary[i] == 48 ){
+            continue;
+         }
+         else if ( binary[i] == 49 ){
+            set_bit( i );
+         }
+         else{
+            bits[0] = bits[1] = 0;
+            return;
+         }
+    }
+    
+}
+
 float_128::float_128( double number ) {
     /*
      * Creating number from double
@@ -43,6 +75,11 @@ float_128::float_128( const float_128 & number )
 
 float_128 float_128::add_same_sign( float_128 & float_to_add )
 {
+    if( bits[0] == 0 && bits[1] == 0 )
+        return float_to_add;
+    if( float_to_add.bits[0] ==0 && float_to_add.bits[1] == 0 )
+        return *this;
+    
     
     int exp1 = get_exponent();
     int exp2 = float_to_add.get_exponent();
@@ -66,19 +103,28 @@ float_128 float_128::add_same_sign( float_128 & float_to_add )
 
     
     int exp = 0;
-    
+  //  std::cout << "exp1=" << exp1 << " exp2=" << exp2 << std::endl;
     
     if( exp1 > exp2 ){
         exp = exp1;
         one2 = 0;
         shift_bits_in_array_right(mantissa2, exp1-exp2);
-        mantissa2[0] = mantissa2[0] | ( 1ULL << (50+exp2-exp1) );
+      //  mantissa2[0] = mantissa2[0] | ( 1ULL << (50+exp2-exp1) );
+        if( 50+exp2-exp1 > -1 )
+            mantissa2[0] = mantissa2[0] | ( 1ULL << (50+exp2-exp1) );
+        else{
+            mantissa2[1] = mantissa2[1] | ( 1ULL << (114+exp2-exp1) );
+        }
     }
     else if( exp1 < exp2 ){
         exp = exp2;
         one1 = 0;
         shift_bits_in_array_right(mantissa1, exp2-exp1);
-        mantissa1[0] = mantissa1[0] | ( 1ULL << (50-exp2+exp1) );
+        if( 50-exp2+exp1 > -1 )
+            mantissa1[0] = mantissa1[0] | ( 1ULL << (50-exp2+exp1) );
+        else{
+            mantissa1[1] = mantissa1[1] | ( 1ULL << (114-exp2+exp1) );
+        }
     }
     else{
         exp = exp1 + 1;
@@ -94,7 +140,7 @@ float_128 float_128::add_same_sign( float_128 & float_to_add )
 
     int accumulator = 0;
 
-  /*  std::cout << "matisissa1: " << std::endl;
+ /*   std::cout << "matisissa1: " << std::endl;
     display_array(mantissa1);
     std::cout << "matisissa2: " << std::endl;
     display_array(mantissa2);    */
@@ -177,9 +223,10 @@ bool float_128::leq_abs( float_128 & float_to_compare ){
     if( exp1 > exp2)
         return 0;
     
-    uint64_t mantissa1 = ( bits[0] >> 14 ) << 14;
-    uint64_t mantissa2 = ( float_to_compare.bits[0] >> 14 ) << 14;
+    uint64_t mantissa1 = ( ( (bits[0] << 1) >> 1 )  >> 13 ) << 13;
+    uint64_t mantissa2 = ( (( float_to_compare.bits[0] << 1) >> 1 )  >> 13 ) << 13;
     
+
     if( mantissa1 < mantissa2 )
         return 1;
     
@@ -215,7 +262,6 @@ bool float_128::eq_abs( float_128 & float_to_compare )
 
 float_128  float_128::add_opposite_signs( float_128 & float_to_add )
 {
-    
     int exp1 = get_exponent();
     int exp2 = float_to_add.get_exponent();
     
@@ -239,29 +285,23 @@ float_128  float_128::add_opposite_signs( float_128 & float_to_add )
     int tmp2[50+64+1];
         
     int tmp[50+64+1];
+
     
-   // std::cout << "bits: " << std::endl;
-   // display_array( bits );
-    
-    
-  //  std::cout << "float_to_add.bits: " << std::endl;
-  //  display_array( float_to_add.bits );
     
     if( leq_abs(float_to_add ) ){
-        // substract mantissa of *this from mantissa of float_to_add
         
         if( exp1 < exp2 ){
-            
             shift_bits_in_array_right(mantissa1, exp2-exp1);
-            mantissa1[0] = mantissa1[0] | ( 1ULL << ( 50 - exp2 + exp1 ) );
+            if( 50 - exp2 + exp1 > -1 )
+                mantissa1[0] = mantissa1[0] | ( 1ULL << ( 50 - exp2 + exp1 ) );
+            else
+                mantissa1[1] = mantissa1[1] | ( 1ULL << ( 114 - exp2 + exp1 ) );
+             set_array( mantissa1, tmp1, 0, mantissa2, tmp2, 1);
         }
-        
-       // std::cout << "matisissa1: " << std::endl;
-       // display_array(mantissa1);
-       // std::cout << "matisissa2: " << std::endl;
-       // display_array(mantissa2);    
-        
-        set_array( mantissa1, tmp1, 0, mantissa2, tmp2, 1);
+        else{
+            
+             set_array( mantissa1, tmp1, 0, mantissa2, tmp2, 0);
+        }
     
         for( int i=114; i>-1; i--){
             
@@ -272,22 +312,25 @@ float_128  float_128::add_opposite_signs( float_128 & float_to_add )
                 tmp2[i-1]--;
             }
         }
-            
-            
+        
+    
          int places_to_shift = convert_to_mantissa(result, tmp );
 
         float_128 resultt;
-    //    std::cout << "shift mantissa: " << places_to_shift << " places " << std::endl; 
+        
+        if( places_to_shift == -1 )
+            return resultt;
         
         //display_array(result);
         resultt.bits[0] = result[0];
         resultt.bits[1] = result[1];
+        
+        if( exp2 == exp1 && places_to_shift )
+            places_to_shift--;
     
         resultt.set_exponent(exp2+4095 - places_to_shift);
         if( float_to_add.is_negative() )
             resultt.set_bit( 127 );
-           // resultt.bits[0] = resultt.bits[0] | (1ULL << 63 );
-        
     
         return resultt;
         
@@ -295,11 +338,19 @@ float_128  float_128::add_opposite_signs( float_128 & float_to_add )
     
     if( exp2 < exp1 ){
         shift_bits_in_array_right(mantissa2, exp1-exp2);
-        mantissa2[0] = mantissa2[0] | ( 1ULL << ( 50 - exp1 + exp2) );
+        if(  50 - exp1 + exp2 > -1) 
+            mantissa2[0] = mantissa2[0] | ( 1ULL << ( 50 - exp1 + exp2) );
+        else
+            mantissa2[1] = mantissa2[1] | ( 1ULL << ( 114 - exp1 + exp2) );
         
+        set_array( mantissa1, tmp1, 1, mantissa2, tmp2, 0);
+    }
+    else{
+        set_array( mantissa1, tmp1, 0, mantissa2, tmp2, 0);
     }
     
-    set_array( mantissa1, tmp1, 1, mantissa2, tmp2, 0);
+    
+    
 
     for( int i=114; i>-1; i--){
             
@@ -311,7 +362,10 @@ float_128  float_128::add_opposite_signs( float_128 & float_to_add )
         }
     }
     
+    
     int places_to_shift = convert_to_mantissa(result, tmp );
+    if( exp2 == exp1 && places_to_shift )
+            places_to_shift--;
                
     float_128 resultt;
     
@@ -319,10 +373,9 @@ float_128  float_128::add_opposite_signs( float_128 & float_to_add )
     resultt.bits[1] = result[1];
     
     resultt.set_exponent(exp1+4095 - places_to_shift);
+    
     if( is_negative() )
         resultt.set_bit(127);
-       // resultt.bits[0] = resultt.bits[0] | (1ULL << 63 );
-        
     
     return resultt;
 }
@@ -391,3 +444,36 @@ bool float_128::operator<= ( float_128 & float_to_compare){
         
         return 0;
     }
+
+    
+float_128 & float_128::operator += ( float_128 & float_to_add )
+{
+    float_128 tmp = *this + float_to_add;
+    bits[0] = tmp.bits[0];
+    bits[1] = tmp.bits[1];
+    
+    return *this;
+}
+
+
+float_128 & float_128::operator -= ( float_128 & float_to_add )
+{
+    float_128 tmp = *this - float_to_add;
+    bits[0] = tmp.bits[0];
+    bits[1] = tmp.bits[1];
+    
+    return *this;
+}
+
+float_128 float_128::operator= (  float_128 & float_to_assign)
+{
+        if( &float_to_assign == this)
+            return *this;
+        
+        bits[0] = float_to_assign.bits[0];
+        bits[1] = float_to_assign.bits[1];
+        
+        return *this;
+}
+
+

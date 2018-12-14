@@ -53,6 +53,9 @@ public:
     }
     
     
+    float_128 ( std::string binary );
+    
+    
     float_128( double number );
     
     float_128( const float_128 & number );
@@ -250,16 +253,10 @@ public:
         return ( !(*this<=float_to_compare) || *this==float_to_compare );
     }
     
+    float_128 operator= (  float_128 & float_to_assign);
     
-    float_128 operator= (  float_128 & float_to_assign){
-        if( &float_to_assign == this)
-            return *this;
-        
-        bits[0] = float_to_assign.bits[0];
-        bits[1] = float_to_assign.bits[1];
-        
-        return *this;
-    }
+    float_128 & operator += ( float_128 & float_to_add );
+    float_128 & operator -= ( float_128 & float_to_add );
     
 };
 
