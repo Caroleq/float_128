@@ -11,7 +11,9 @@ Number consists of:
 
 
 Formula to compute decimal number:
-![](images/formula.png?raw=true )
+
+
+![Alt text](images/formula.png?raw=true )
 
 Where:
  - S - sign
