@@ -1,6 +1,6 @@
-## Float_128
+# Float_128
 
-# General info
+## General info
 Project implements floating point number of size 128 bits.
 
 ![](images/float.png?raw=true )
@@ -23,7 +23,7 @@ Where:
 Number is stored in two-element uint64_t array. 
 
 
-# Running sample project
+## Running sample project
 Linux:
 ```
 make
@@ -36,7 +36,7 @@ To clear the project, type:
 make clear
 ```
 
-# Running tests
+## Running tests
 Running tests requires installation of:
 - gtest
 
@@ -57,5 +57,5 @@ g++ main_tests.cpp ../src/float_128.cpp -o test -lgtest
 ./test
 ```
 
-# Application
+## Application
 Big-size floating point numbers can be used for storing numbers with high accuracy. Also they can be used for performing arithmetical operations without significant data loss. 
