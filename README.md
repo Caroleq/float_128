@@ -14,7 +14,7 @@ Formula to compute decimal number:
 ![](images/formula.png?raw=true )
 
 Where:
- - s - sign
+ - S - sign
  - E - exponent
  - M - mantissa
  - bias = 4095
@@ -25,7 +25,8 @@ Number is stored in two-element uint64_t array.
 
 # Running sample project
 Linux:
-```make
+```
+make
 cd bin
 ./float_128
 ```
