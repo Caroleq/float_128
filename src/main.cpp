@@ -4,35 +4,9 @@
 int main()
 {
     
-    float_128 float0(4);
-    //std::cout << float0.binary_representation() << std::endl;
+    std::cout << "Sample program for float_128 usage. You can put your code here" << std::endl;
     
-    float_128 float1(2.3);
-    
-    float_128 float2(34.88);
-    
-    float_128 float3(2);
-    
-    float_128 float4 = float0 + float3;
-    
-    float_128 float5 = float0 + float1;
-    
-   // std::cout << float4.binary_representation()  << std::endl;
-    
-  //  std::cout << float5.binary_representation()  << std::endl;
-    
-    float_128 float6(5);
-    float_128 float7(-3);
-    
-    float_128 float8 = float7 + float6;
-    
-    std::cout << float6.binary_representation() << std::endl;
-   std::cout << float7.binary_representation() << std::endl;
-  std::cout << float8.binary_representation()  << std::endl;
-    
-  ///  floa8 = float4
-    
-  return 0;   
+   return 0;   
 }
 
 

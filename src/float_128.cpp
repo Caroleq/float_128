@@ -413,7 +413,7 @@ float_128 float_128::operator* (  float_128 & float_to_multiply  )
         
     result.set_exponent( exp + 4095 );
     
-    if( is_negative() && !float_to_multiply.is_negative() ||  !is_negative() && float_to_multiply.is_negative())
+    if( ( is_negative() && !float_to_multiply.is_negative() ) || ( !is_negative() && float_to_multiply.is_negative() ) )
         result.set_bit( 127 );
     
         

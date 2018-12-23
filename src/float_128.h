@@ -69,7 +69,7 @@ public:
          */
      
 
-       uint8_t *ptr_to_int = (uint8_t *)&number;
+     //  uint8_t *ptr_to_int = (uint8_t *)&number;
        uint8_t exp = 0;
        
        while(  ( number / (double)(1ULL<<(exp+1)) ) >= 1)
@@ -88,7 +88,7 @@ public:
      
        uint8_t *ptr_to_double = (uint8_t *)&number;
 
-       for( int byte = 0; byte < sizeof(double); byte++)
+       for( int byte = 0; byte < (uint8_t)sizeof(double); byte++)
         {
             uint8_t value = ptr_to_double[byte];
             uint8_t bit;
@@ -214,7 +214,7 @@ public:
     
     float_128 operator+ ( float_128 & float_to_add ){
       
-        if( is_negative() && float_to_add.is_negative() ||  !is_negative() && !float_to_add.is_negative() ){
+        if( ( is_negative() && float_to_add.is_negative() ) || ( !is_negative() && !float_to_add.is_negative() ) ){
             return add_same_sign(float_to_add);
         }
         
@@ -224,7 +224,7 @@ public:
     
     float_128 operator- ( float_128 & float_to_substract  ){
      
-        if( is_negative() && float_to_substract.is_negative() ||  !is_negative() && !float_to_substract.is_negative() ){
+        if( ( is_negative() && float_to_substract.is_negative() ) || ( !is_negative() && !float_to_substract.is_negative() ) ){
             return add_opposite_signs( float_to_substract );
         }
         
