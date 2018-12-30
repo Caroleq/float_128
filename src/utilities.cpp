@@ -1,6 +1,8 @@
 #include <cstdint>
 #include <iostream>
 
+#include "exceptions/invalid_index.h"
+
 
 int get_bit( uint64_t bit_arr[], int index );
 void shift_bits_in_array_left( uint64_t array[] , int positions );
@@ -135,6 +137,9 @@ int convert_to_mantissa( uint64_t mantissa[], int arr[] ){
 
 int get_bit( uint64_t bit_arr[], int index )
 {
+    if( index < 0 || index > 128 )
+        throw invalid_index_error("Index should be in range [0,127] " + std::to_string(index) + " provided");
+    
     if( index > 63 ){
         
         index -= 64;

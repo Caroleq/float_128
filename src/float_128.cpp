@@ -11,7 +11,8 @@ extern void multiply_mantissas( uint64_t mantissa1[], uint64_t mantissa2[], int 
 
 
 
-float_128::float_128 ( std::string binary ){
+float_128::float_128 ( std::string binary ) 
+{
     /*
      * Creates a number from string of length 128 consisitng of ones andzeros
      * 
@@ -66,14 +67,12 @@ float_128::float_128( double number ) {
 float_128::float_128( const float_128 & number )
 {
     
-    //std::cout << "Konstruktor kopiujacjy" << std::endl;
-    
     bits[0] = number.bits[0];
     bits[1] = number.bits[1];
     
 }
 
-float_128 float_128::add_same_sign( float_128 & float_to_add )
+float_128 float_128::add_same_sign ( const float_128 & float_to_add ) const
 {
     if( bits[0] == 0 && bits[1] == 0 )
         return float_to_add;
@@ -204,7 +203,6 @@ float_128 float_128::add_same_sign( float_128 & float_to_add )
     
     resultt.set_exponent(exp+4095);
     
-  
     
     return resultt;
     
@@ -213,7 +211,8 @@ float_128 float_128::add_same_sign( float_128 & float_to_add )
 
 
 
-bool float_128::leq_abs( float_128 & float_to_compare ){
+bool float_128::leq_abs( const float_128 & float_to_compare ) const
+{
   
     int exp1 = get_exponent();
     int exp2 = float_to_compare.get_exponent();
@@ -243,12 +242,13 @@ bool float_128::leq_abs( float_128 & float_to_compare ){
 }
 
 
-bool float_128::geq_abs( float_128 & float_to_compare ){
+bool float_128::geq_abs( const float_128 & float_to_compare ) const
+{
     
     return (!leq_abs(float_to_compare) || eq_abs(float_to_compare) );
 }
 
-bool float_128::eq_abs( float_128 & float_to_compare )
+bool float_128::eq_abs( const float_128 & float_to_compare ) const
 {
     if( bits[1] != float_to_compare.bits[1] )
         return 0;
@@ -260,7 +260,7 @@ bool float_128::eq_abs( float_128 & float_to_compare )
 }
 
 
-float_128  float_128::add_opposite_signs( float_128 & float_to_add )
+float_128  float_128::add_opposite_signs( const float_128 & float_to_add ) const
 {
     int exp1 = get_exponent();
     int exp2 = float_to_add.get_exponent();
@@ -381,7 +381,7 @@ float_128  float_128::add_opposite_signs( float_128 & float_to_add )
 }
 
 
-float_128 float_128::operator* (  float_128 & float_to_multiply  )
+float_128 float_128::operator* ( const float_128 & float_to_multiply ) const
 {
     float_128 result;
     
@@ -422,7 +422,8 @@ float_128 float_128::operator* (  float_128 & float_to_multiply  )
 
 
 
-bool float_128::operator<= ( float_128 & float_to_compare){
+bool float_128::operator<= ( const float_128 & float_to_compare ) const
+{
         
         if( is_negative() && !float_to_compare.is_negative() ){
                 return 1;
@@ -446,7 +447,7 @@ bool float_128::operator<= ( float_128 & float_to_compare){
     }
 
     
-float_128 & float_128::operator += ( float_128 & float_to_add )
+float_128 & float_128::operator += ( const float_128 & float_to_add )
 {
     float_128 tmp = *this + float_to_add;
     bits[0] = tmp.bits[0];
@@ -456,7 +457,7 @@ float_128 & float_128::operator += ( float_128 & float_to_add )
 }
 
 
-float_128 & float_128::operator -= ( float_128 & float_to_add )
+float_128 & float_128::operator -= ( const float_128 & float_to_add )
 {
     float_128 tmp = *this - float_to_add;
     bits[0] = tmp.bits[0];
@@ -465,7 +466,7 @@ float_128 & float_128::operator -= ( float_128 & float_to_add )
     return *this;
 }
 
-float_128 float_128::operator= (  float_128 & float_to_assign)
+float_128 float_128::operator= ( const float_128 & float_to_assign )
 {
         if( &float_to_assign == this)
             return *this;
@@ -476,4 +477,38 @@ float_128 float_128::operator= (  float_128 & float_to_assign)
         return *this;
 }
 
+bool float_128::operator>=( const float_128 & float_to_compare ) const 
+{
+        return ( !(*this<=float_to_compare) || *this==float_to_compare );
+}
 
+
+bool float_128::operator== ( const float_128 & float_to_compare) const 
+{
+      return ( float_to_compare.bits[0] == bits[0] || float_to_compare.bits[1] == bits[1] );   
+}
+    
+    
+float_128 float_128::operator- ( const float_128 & float_to_substract  ) const
+{
+     
+        if( ( is_negative() && float_to_substract.is_negative() ) || ( !is_negative() && !float_to_substract.is_negative() ) ){
+            
+            return add_opposite_signs( float_to_substract );
+        }
+
+    return add_same_sign( float_to_substract );
+        
+}
+
+
+float_128 float_128::operator+ ( const float_128 & float_to_add ) const 
+{
+      
+        if( ( is_negative() && float_to_add.is_negative() ) || ( !is_negative() && !float_to_add.is_negative() ) ){
+            return add_same_sign(float_to_add);
+        }
+        
+        return add_opposite_signs( float_to_add );
+        
+}

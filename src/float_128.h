@@ -6,6 +6,8 @@
 #include <cstdint>
 #include <iostream>
 #include <math.h>
+
+#include "exceptions/invalid_index.h"
 // x = (-1)^s*2^(bias-E)*(1+M)
 
 /*
@@ -124,7 +126,8 @@ public:
     }
 
     
-    bool get_bit( int index ){
+    bool get_bit( int index ) const
+    {
         /* returns `index` bit of stored number*/
      
         if( index < 0 || index > 127 )
@@ -138,11 +141,12 @@ public:
     }
     
     
-    void set_bit( int index ){
+    void set_bit( int index ) 
+    {
         /*  Sets bit `index` of `bits` to 1 */
      
         if( index < 0 || index > 127 )
-            return;
+            throw invalid_index_error();
         
         if( index > 63 ){
             index -= 64;
@@ -159,7 +163,7 @@ public:
         /*  Sets bit `index` of `bits` to 0 */
      
         if( index < 0 || index > 127 )
-            return;
+            throw invalid_index_error();
         
         if( index > 63 ){
             index -= 64;
@@ -171,7 +175,7 @@ public:
         
     }
     
-    int get_exponent()
+    int get_exponent() const
     {
         /*
          * Returns exponent of number stored in bits
@@ -187,7 +191,8 @@ public:
     }
     
     
-    const std::string binary_representation(){
+    const std::string binary_representation() const
+    {
         /*
          * Returns string representing stored number from the most significent
          * bit to the least significante one. Sign, exponent and mantissa bits
@@ -208,55 +213,37 @@ public:
     
 
     
-    bool is_negative(){
+    bool is_negative() const {
         return ( bits[0] >> 63 ) & 1;
     }
     
-    float_128 operator+ ( float_128 & float_to_add ){
-      
-        if( ( is_negative() && float_to_add.is_negative() ) || ( !is_negative() && !float_to_add.is_negative() ) ){
-            return add_same_sign(float_to_add);
-        }
-        
-        return add_opposite_signs( float_to_add );
-        
-    }
+    float_128 operator+ ( const float_128 & float_to_add ) const;
     
-    float_128 operator- ( float_128 & float_to_substract  ){
-     
-        if( ( is_negative() && float_to_substract.is_negative() ) || ( !is_negative() && !float_to_substract.is_negative() ) ){
-            return add_opposite_signs( float_to_substract );
-        }
-        
+    float_128 operator- ( const float_128 & float_to_substract ) const;
+    
+    float_128 operator* ( const float_128 & float_to_multiply ) const;
+    
+    float_128 add_same_sign ( const float_128 & float_to_add ) const;
+    
+    float_128  add_opposite_signs ( const float_128 & float_to_add ) const;
 
-        return add_same_sign( float_to_substract );
-        
-    }
+    bool leq_abs ( const float_128 & float_to_compare ) const;
     
-    float_128 operator* (  float_128 & float_to_multiply  );
+    bool geq_abs ( const float_128 & float_to_compare ) const;
     
-    float_128 add_same_sign( float_128 & float_to_add);
-    float_128 add_opposite_signs( float_128 & float_to_add );
-
-    bool leq_abs(  float_128 & float_to_compare );
-    bool geq_abs( float_128 & float_to_compare );
-    bool eq_abs(  float_128 & float_to_compare );
+    bool eq_abs ( const float_128 & float_to_compare ) const;
     
-    bool operator<= ( float_128 & float_to_compare);
+    bool operator<= ( const float_128 & float_to_compare) const;
     
-    bool operator== (  float_128 & float_to_compare){
-      return ( float_to_compare.bits[0] == bits[0] || float_to_compare.bits[1] == bits[1] );   
-    }
+    bool operator== ( const float_128 & float_to_compare) const;
     
-    bool operator>=( float_128 & float_to_compare ){
-        
-        return ( !(*this<=float_to_compare) || *this==float_to_compare );
-    }
+    bool operator>= ( const float_128 & float_to_compare ) const;
     
-    float_128 operator= (  float_128 & float_to_assign);
+    float_128 operator= ( const float_128 & float_to_assign );
     
-    float_128 & operator += ( float_128 & float_to_add );
-    float_128 & operator -= ( float_128 & float_to_add );
+    float_128 & operator+= ( const float_128 & float_to_add );
+    
+    float_128 & operator-= ( const float_128 & float_to_add );
     
 };
 
