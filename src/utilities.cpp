@@ -17,8 +17,6 @@ void multiply_mantissas( uint64_t mantissa1[], uint64_t mantissa2[], int result 
 void shift_bits_in_array_left( uint64_t array[] , int positions )
 {
     
-    
-    
     if( positions < 64 ){
             
         uint64_t higher = ( array[0] << positions ) | (array[1] >>(64-positions));
@@ -27,12 +25,11 @@ void shift_bits_in_array_left( uint64_t array[] , int positions )
         array[0] = higher;
         array[1] = lower;
     }
-    else if( positions == 64 ){
+    else if( positions == 64 ) {
             array[0] = array[1];
             array[1] = 0;
     }
-    else{
-        // to check
+    else {
         array[0] = array[1] << (128-positions);
         array[1] = 0;
     }
@@ -63,7 +60,7 @@ void display_array( uint64_t array[] )
     for( int i=7; i>-1; i--){
       for( int j=7; j>-1; j--){
           std::cout << ( ( array[0] >> (8*i+j) ) & 1 );
-          if( i==7 && j==7 || i==6 && j==2)
+          if( ( i==7 && j==7 ) || ( i==6 && j==2) )
               std::cout << " ";
       }
     }
@@ -115,8 +112,6 @@ int convert_to_mantissa( uint64_t mantissa[], int arr[] ){
     if( to_shift == 114 && arr[to_shift] == 0 )
         return -1;
     
-    
-    
     for( int i=14; i<64 &&  i+to_shift <128; i++){
             
         if( arr[i+to_shift-13] )
@@ -124,7 +119,6 @@ int convert_to_mantissa( uint64_t mantissa[], int arr[] ){
             
     }
     
-    // error
     for( int i=0; i<64 && i+to_shift <64; i++){
         
         if( arr[i+to_shift+50] )
@@ -138,7 +132,7 @@ int convert_to_mantissa( uint64_t mantissa[], int arr[] ){
 int get_bit( uint64_t bit_arr[], int index )
 {
     if( index < 0 || index > 128 )
-        throw invalid_index_error("Index should be in range [0,127] " + std::to_string(index) + " provided");
+        throw invalid_index_error("Index should be in range [0..127] " + std::to_string(index) + " provided");
     
     if( index > 63 ){
         
@@ -168,7 +162,6 @@ void multiply_mantissas( uint64_t mantissa1[], uint64_t mantissa2[], int result 
             
             int bit1 = get_bit( mantissa1, i );
             int bit2 = get_bit( mantissa2, j);
-            
             
             result[ 229 - j - i ] += bit1 * bit2;
         }

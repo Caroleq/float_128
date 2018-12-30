@@ -7,7 +7,8 @@
 #include <iostream>
 #include <math.h>
 
-#include "exceptions/invalid_index.h"
+#include "exceptions/invalid_index_error.h"
+#include "exceptions/binary_representation_error.h"
 // x = (-1)^s*2^(bias-E)*(1+M)
 
 /*

@@ -1,5 +1,5 @@
-#ifndef INVALID_INDEX_H
-#define INVALID_INDEX_H
+#ifndef INVALID_INDEX_ERROR_H
+#define INVALID_INDEX_ERROR_H
 
 #include <exception>
 

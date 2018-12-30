@@ -32,7 +32,8 @@ float_128::float_128 ( int number )
     double to_convert = abs( number );
           
     int exponent = get_exponent_from_int(abs( number) );
-    set_exponent( exponent + 4095 );
+
+    set_exponent( exponent);
     set_mantissa(  to_convert );
 }
 
@@ -45,7 +46,7 @@ float_128::float_128 ( std::string binary )
     bits[0] = bits[1] = 0;
     
     if( binary.size() != 128 ){
-        return;
+        throw binary_representation_error("Invalid length of input string: " + std::to_string(binary.size()) + " ( must be 128 )");
     }
     
     for( int i=0; i<128; i++){
@@ -57,8 +58,7 @@ float_128::float_128 ( std::string binary )
             set_bit( i );
          }
          else{
-            bits[0] = bits[1] = 0;
-            return;
+            throw binary_representation_error("Invalid char detected: " + std::to_string(i) + " ( must be '0' or '1'");
          }
     }
     
@@ -66,9 +66,7 @@ float_128::float_128 ( std::string binary )
 
 float_128::float_128( double number ) 
 {
-    /*
-      Creating number from double
-    */
+    /* Creating number from double */
     bits[0] = bits[1] = 0;
         
     if( number < 0 )
@@ -82,7 +80,7 @@ float_128::float_128( double number )
     int exponent;
     frexp (number , &exponent);
         
-    set_exponent( exponent - 1 + 4095 );
+    set_exponent( exponent - 1 );
     set_mantissa( to_convert );
         
 }
@@ -118,10 +116,10 @@ uint8_t float_128::get_exponent_from_int( int number ) const
 
 bool float_128::get_bit( int index ) const
 {
-    /* returns `index` bit of stored number*/
+    /* returns `index` bit of stored number */
      
     if( index < 0 || index > 127 )
-        return -1;
+        throw invalid_index_error("Error in \"bool float_128::get_bit( int index ) const\"\nIndex should be in range of [0..127]");
         
     if( index > 63 ){
         index -= 64;
@@ -134,9 +132,7 @@ bool float_128::get_bit( int index ) const
 
 int float_128::get_exponent() const
 {
-    /*
-        Returns exponent of number stored in bits
-    */
+    /* Returns exponent of number stored in bits */
     int exponent = 0;
             
     for( int i=126; i>113; i--)
@@ -146,10 +142,14 @@ int float_128::get_exponent() const
     return exponent - 4095;
 }
 
+
 bool float_128::is_negative() const 
 {
+    
     return ( bits[0] >> 63 ) & 1;
+    
 }
+
 
 const std::string float_128::binary_representation() const
 {
@@ -174,9 +174,7 @@ const std::string float_128::binary_representation() const
 
 void float_128::set_mantissa( double number )
 {
-        /*
-         * Sets mantissa of *this to mantissa stored in `number` 
-         */
+    /*  Sets mantissa of *this to mantissa stored in `number` */
      
     uint8_t *ptr_to_double = (uint8_t *)&number;
 
@@ -199,18 +197,18 @@ void float_128::set_mantissa( double number )
 
 void float_128::set_exponent( int exp )
 {
-        /*  Sets exponent to `exp` */
+    /*  Sets exponent to `exp` */
         
-        
-        for( int i=114; i<127; i++){
+    exp += 4095;
+    for( int i=114; i<127; i++){
             
-            bool bit = exp & 1;
-            if( bit )
-                set_bit(i);
-            else
-                clear_bit(i);
-            exp = exp >> 1;
-        }
+        bool bit = exp & 1;
+        if( bit )
+            set_bit(i);
+        else
+            clear_bit(i);
+        exp = exp >> 1;
+    }
         
 }
 
@@ -220,7 +218,7 @@ void float_128::set_bit( int index )
     /*  Sets bit `index` of `bits` to 1 */
      
     if( index < 0 || index > 127 )
-        throw invalid_index_error();
+        throw invalid_index_error("Error in \"void float_128::set_bit( int index )\"\nIndex should be in range of [0..127]");
         
     if( index > 63 ){
         index -= 64;
@@ -238,7 +236,7 @@ void float_128::clear_bit( int index )
     /*  Sets bit `index` of `bits` to 0 */
      
     if( index < 0 || index > 127 )
-        throw invalid_index_error();
+        throw invalid_index_error("Error in \"void float_128::clear_bit( int index )\"\nIndex should be in range of [0..127]");
         
     if( index > 63 ){
         index -= 64;

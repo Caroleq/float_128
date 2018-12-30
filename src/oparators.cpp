@@ -78,7 +78,8 @@ float_128 float_128::operator* ( const float_128 & float_to_multiply ) const
         }
     
         
-    result.set_exponent( exp + 4095 );
+   // result.set_exponent( exp + 4095 );
+    result.set_exponent( exp );
     
     if( ( is_negative() && !float_to_multiply.is_negative() ) || ( !is_negative() && float_to_multiply.is_negative() ) )
         result.set_bit( 127 );
@@ -181,7 +182,7 @@ bool float_128::leq_abs( const float_128 & float_to_compare ) const
 
 bool float_128::geq_abs( const float_128 & float_to_compare ) const
 {
-    return (!leq_abs(float_to_compare) || eq_abs(float_to_compare) );
+    return ( !leq_abs(float_to_compare) || eq_abs(float_to_compare) );
 }
 
 bool float_128::eq_abs( const float_128 & float_to_compare ) const

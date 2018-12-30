@@ -55,7 +55,7 @@ mv libgtest.a /usr/lib/
 Linux:
 ```
 cd tests
-g++ main_tests.cpp ../src/float_128.cpp -o test -lgtest 
+g++ main_tests.cpp ../src/float_128.cpp ../src/oparators.cpp ../src/private_methods.cpp -o main -lgtest -lpthread
 ./test
 ```
 

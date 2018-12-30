@@ -120,7 +120,7 @@ float_128 float_128::add_same_sign ( const float_128 & float_to_add ) const
     resultt.bits[0] = result[0];
     resultt.bits[1] = result[1];
     
-    resultt.set_exponent(exp+4095);
+    resultt.set_exponent(exp);
     
     return resultt;
 }
@@ -191,7 +191,7 @@ float_128  float_128::add_opposite_signs( const float_128 & float_to_add ) const
         if( exp2 == exp1 && places_to_shift )
             places_to_shift--;
     
-        resultt.set_exponent(exp2+4095 - places_to_shift);
+        resultt.set_exponent(exp2 - places_to_shift);
         if( float_to_add.is_negative() )
             resultt.set_bit( 127 );
     
@@ -230,7 +230,7 @@ float_128  float_128::add_opposite_signs( const float_128 & float_to_add ) const
     resultt.bits[0] = result[0];
     resultt.bits[1] = result[1];
     
-    resultt.set_exponent(exp1+4095 - places_to_shift);
+    resultt.set_exponent(exp1 - places_to_shift);
     
     if( is_negative() )
         resultt.set_bit(127);
