@@ -1,7 +1,7 @@
 #include <cstdint>
 #include <iostream>
 
-#include "exceptions/invalid_index.h"
+#include "exceptions/invalid_index_error.h"
 
 
 int get_bit( uint64_t bit_arr[], int index );
