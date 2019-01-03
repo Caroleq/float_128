@@ -4,30 +4,10 @@
 #include <gtest/gtest.h>
 #include "../src/float_128.h"
 
-#include<stdio.h>
-
-class double_test: public::testing::Test {
-    
-protected:
-    virtual void SetUp() {
-        
-        
-    }
-    
-    virtual void TearDown() {
-        
-    }
-
-};
 
 
-
-
-
-
-
-
-TEST_F( double_test, comare_binary_representation ){
+TEST( from_double_construction_test, compare_binary_representation )
+{
     
     float_128 f1(2.3);
     float_128 f2(3.99);

@@ -5,22 +5,10 @@
 #include "../src/float_128.h"
 
 
-class substraction_test: public::testing::Test {
-    
-protected:
-    virtual void SetUp() {
-        
-        
-    }
-    
-    virtual void TearDown() {
-        
-    }
-
-};
 
 
-TEST_F( substraction_test, substract_floats_from_ints ){
+TEST( substraction_test, substract_ints )
+{
     
     float_128 f1(6);
     float_128 f2(-3);

@@ -5,22 +5,9 @@
 #include "../src/float_128.h"
 
 
-class addition_test: public::testing::Test {
-    
-protected:
-    virtual void SetUp() {
-        
-        
-    }
-    
-    virtual void TearDown() {
-        
-    }
 
-};
-
-
-TEST_F( addition_test, comare_binary_representation ){
+TEST( addition_test, from_ints )
+{
     
     float_128 f1(6);
     float_128 f2(-3);
@@ -41,11 +28,12 @@ TEST_F( addition_test, comare_binary_representation ){
 
 
 
-TEST_F( addition_test, more_complex_test ){
+TEST( addition_test, from_float )
+{
     
     float_128 f1(10000000000000000.0);
     float_128 f2(-10000000000000000.0);
-    float_128 f3(1);
+    float_128 f3(1.0);
     
     float_128 f4 = f3 + f2 ;
     float_128 f5 = f1 + f2;

@@ -5,22 +5,8 @@
 #include "../src/float_128.h"
 
 
-class multiplication_test: public::testing::Test {
-    
-protected:
-    virtual void SetUp() {
-        
-        
-    }
-    
-    virtual void TearDown() {
-        
-    }
 
-};
-
-
-TEST_F( multiplication_test, multiplcation ){
+TEST( multiplication_test, ints_multiplcation ){
     
     float_128 f1(6);
     float_128 f2(-3);

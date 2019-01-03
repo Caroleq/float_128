@@ -1,8 +1,9 @@
 #include <gtest/gtest.h>
+#include "addition_test.h"
 #include "utilities_test.h"
 #include "multiplication_test.h"
 #include "from_int_test.h"
-#include "addition_test.h"
+#include "equality_test.h"
 #include "substraction_test.h"
 #include "from_double_test.h"
 
