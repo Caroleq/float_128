@@ -6,7 +6,7 @@
 #include "equality_test.h"
 #include "substraction_test.h"
 #include "from_double_test.h"
-
+#include "comparison_test.h"
 
 
 int main(int ac, char* av[])
