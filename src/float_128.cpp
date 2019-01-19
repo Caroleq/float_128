@@ -55,12 +55,13 @@ float_128::float_128 ( std::string binary )
             continue;
          }
          else if ( binary[i] == 49 ){
-            set_bit( i );
+            set_bit( 127 - i );
          }
          else{
             throw binary_representation_error("Invalid char detected: " + std::to_string(i) + " ( must be '0' or '1'");
          }
     }
+    
     
 }
 

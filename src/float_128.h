@@ -5,18 +5,12 @@
 #include <string>
 #include <cstdint>
 #include <iostream>
+#include <vector>
 #include <math.h>
 
 #include "exceptions/invalid_index_error.h"
 #include "exceptions/binary_representation_error.h"
-// x = (-1)^s*2^(bias-E)*(1+M)
 
-/*
- * 
- * Class implementing floating point number of size 128 bits (number stored in two-element uint64_t array
- * It enables arithmetic operations on numbers. May be useful e.g. while summing floating point numbers
- * (greater accuracy then summng `double` or `float` type numbers).
- */
 
 
 class float_128
@@ -62,10 +56,6 @@ public:
     
     void set_exponent( int exp );
     
-    void set_bit( int index );
-    
-    void clear_bit( int index );
-    
     /* Operators */
     
     float_128 operator= ( const float_128 & float_to_assign );
@@ -94,13 +84,22 @@ public:
     
     bool eq_abs ( const float_128 & float_to_compare ) const;
     
+    /* Friend functions for iostream operations */
     
-    /* Private methods used by class oparators */
+    friend std::ostream& operator<< (std::ostream & stream, const float_128 & float_to_print );
+    
+    
+    /* Private methods used by class operators */
     
 private:
     float_128 add_same_sign ( const float_128 & float_to_add ) const;
     
     float_128  add_opposite_signs ( const float_128 & float_to_add ) const;
+    
+    void set_bit( int index );
+    
+    void clear_bit( int index );
+    
     
 };
 

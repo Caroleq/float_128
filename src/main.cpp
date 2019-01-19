@@ -4,7 +4,12 @@
 int main()
 {
     
-    std::cout << "Sample program for float_128 usage. You can put your code here" << std::endl;
+    std::cout << "### Sample program for float_128 usage ###" << std::endl;
+    
+    std::cout << std::endl << "Decimal value of \"0 1000000000000 101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010\":" << std::endl;
+    float_128 f1("01000000000000101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010");
+    
+    std::cout << f1 << std::endl;
     
    return 0;   
 }
