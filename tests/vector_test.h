@@ -9,6 +9,8 @@
 extern void divide_two( std::vector<char> & vec );
 extern void add_bit( std::vector<char> & dec_representation, int index );
 extern void mantissa_to_decimal( std::vector<char> & dec_representation, const float_128 float_to_print );
+extern void multiply_twice( std::vector<char> & vec );
+extern void divide_twice( std::vector<char> & vec );
 
 TEST( divide_two_test, simple )
 {
@@ -53,15 +55,67 @@ TEST( add_new_bit_test, simple )
 TEST( get_mantissa_test, simple )
 {
    float_128 f1("01000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");   
+   float_128 f2("01000000000001100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");   
+   float_128 f3("01000000000001110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");   
+   float_128 f4("01000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");   
    std::vector<char> res;
    
- //  std::cout << f1.binary_representation() << std::endl;
+   mantissa_to_decimal( res, f1 );
+   ASSERT_EQ( res, (std::vector<char>{1, '.', 5}) );
    
-   mantissa_to_decimal(res, f1 );
-  /* for( int i=0; i<res.size(); i++)
-       std::cout << char( res[i]+48) << " ";
-   std::cout << std::endl;
-   */
+   mantissa_to_decimal( res, f2 );
+   ASSERT_EQ( res, (std::vector<char>{1, '.', 5}) );
+   
+   mantissa_to_decimal( res, f3 );
+   ASSERT_EQ( res, (std::vector<char>{1, '.', 7, 5}) );
+   
+   mantissa_to_decimal( res, f4 );
+   ASSERT_EQ( res, (std::vector<char>{1, '.', 2, 5}) );
+
+}
+
+TEST( multiply_twice_test, simple )
+{
+   float_128 f1("01000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");   
+   float_128 f2("01000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");   
+   float_128 f3("01000000000001110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");   
+   std::vector<char> res;
+   
+   mantissa_to_decimal( res, f1 );
+   multiply_twice( res );
+   ASSERT_EQ( res, (std::vector<char>{3}) );
+   
+   mantissa_to_decimal( res, f2 );
+   multiply_twice( res );
+   ASSERT_EQ( res, (std::vector<char>{2, '.', 5}) );
+   
+   mantissa_to_decimal( res, f3 );
+   multiply_twice( res );
+   ASSERT_EQ( res, (std::vector<char>{3, '.', 5}) );
+
+}
+
+
+TEST( divide_twice_test, simple )
+{
+   float_128 f1("01000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");   
+   float_128 f2("01000000000001010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");   
+   float_128 f3("01000000000001110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000");   
+   std::vector<char> res;
+   
+   mantissa_to_decimal( res, f1 );
+   ASSERT_EQ( res, (std::vector<char>{1, '.', 5}) );
+   divide_twice( res );
+   ASSERT_EQ( res, (std::vector<char>{0,'.', 7,5}) );
+   
+   mantissa_to_decimal( res, f2 );
+   divide_twice( res );
+   ASSERT_EQ( res, (std::vector<char>{0, '.', 6, 2, 5}) );
+   
+   mantissa_to_decimal( res, f3 );
+   divide_twice( res );
+   ASSERT_EQ( res, (std::vector<char>{0, '.', 8, 7, 5}) );
+
 }
 
 #endif

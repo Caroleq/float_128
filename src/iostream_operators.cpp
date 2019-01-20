@@ -4,6 +4,7 @@ void mantissa_to_decimal( std::vector<char> & dec_representation, const float_12
 void add_bit( std::vector<char> & dec_representation, int index );
 void divide_two( std::vector<char> & vec );
 void multiply_twice( std::vector<char> & vec );
+void divide_twice( std::vector<char> & vec );
 
 std::ostream& operator<< ( std::ostream & stream, const float_128 & float_to_print )
 {
@@ -17,7 +18,8 @@ std::ostream& operator<< ( std::ostream & stream, const float_128 & float_to_pri
         for( int i=0; i<iteration_count; i++ )
             multiply_twice( dec_representation );
     else if ( iteration_count < 0 )
-        ;
+        for( int i=0; i<-iteration_count; i++ )
+            divide_twice( dec_representation );
     
     for( int i=0; i< (int)dec_representation.size(); i++ )
         if( dec_representation[i] == '.' ){
@@ -43,7 +45,6 @@ void mantissa_to_decimal( std::vector<char> & dec_representation, const float_12
             add_bit( dec_representation, 114-i );
         
     }
-    
     
     dec_representation.insert( dec_representation.begin()+1, '.' );
     
@@ -100,8 +101,9 @@ void divide_two( std::vector<char> & vec )
 
 void multiply_twice( std::vector<char> & vec )
 {
-   int accumulator = 0;   
-   for( int i=vec.size()-1; i>-1; i-- )
+   int accumulator = 0;  
+   int n = (int)vec.size()-1;
+   for( int i=n; i>-1; i-- )
    {
       if( vec[i] == '.' )
           continue;
@@ -114,11 +116,43 @@ void multiply_twice( std::vector<char> & vec )
       }
       else
           accumulator = 0;
+      if( i == vec.size()-1 && vec[i] == 0 )
+          vec.pop_back();
    }
    
    if( accumulator )
    {
       vec.insert(vec.begin(), 1 ); 
    }
+   
+   if( vec[ vec.size() -1] == '.' )
+       vec.pop_back();
     
+}
+
+
+void divide_twice( std::vector<char> & vec )
+{
+    
+  int accumulator = 0;
+  for( int i=0; i<(int)vec.size(); i++ )
+  {
+    if( vec[i] == '.' )
+        continue;
+    
+    int remnant = ( vec[i] + accumulator*10 ) % 2;
+    
+    vec[i] = ( vec[i] + accumulator*10 ) / 2;  
+    
+    if( remnant )
+        accumulator = 1;
+    else
+        accumulator = 0;
+    
+  }
+    
+  if( accumulator )
+  {
+      vec.push_back(5);
+  }
 }
